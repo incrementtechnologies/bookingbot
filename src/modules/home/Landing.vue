@@ -15,8 +15,7 @@ import AUTH from 'src/services/auth'
 import CONFIG from 'src/config.js'
 export default {
   components: {
-    'landing-banner': require('modules/home/Landing/Banner.vue'),
-    'test-banner': require('components/increment/imarketvue/delivery/ViewProducts.vue')
+    'landing-banner': require('modules/home/Landing/Banner.vue')
   },
   mounted(){
   },
