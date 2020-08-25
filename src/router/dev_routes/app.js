@@ -1,4 +1,3 @@
-
 export default{
   routes: [{
     path: '/signup',
@@ -36,13 +35,6 @@ export default{
       tokenRequired: false
     }
   }, {
-    path: '/login',
-    name: 'loginAccount',
-    component: resolve => require(['modules/basic/LoginBasic.vue'], resolve),
-    meta: {
-      tokenRequired: false
-    }
-  }, {
     path: '/home',
     name: 'landing',
     component: resolve => require(['modules/home/Landing.vue'], resolve),
@@ -71,93 +63,9 @@ export default{
       tokenRequired: true
     }
   }, {
-    path: '/featured',
-    name: 'featured',
-    component: resolve => require(['modules/ecommerce/marketplace/Featured.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/marketplace',
-    name: 'marketplace',
-    component: resolve => require(['modules/ecommerce/marketplace/Marketplace.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/profile/:parameter?',
-    name: 'profile',
-    component: resolve => require(['modules/basic/UpdateBasic.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
     path: '/referrals/',
     name: 'referrals',
     component: resolve => require(['components/increment/generic/referral/Referrals.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/products/',
-    name: 'products',
-    component: resolve => require(['modules/ecommerce/product/Products.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/product/edit/:code?',
-    name: 'editProduct',
-    component: resolve => require(['components/increment/imarketvue/product/EditProduct.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/deliveries',
-    name: 'deliveries',
-    component: resolve => require(['modules/ecommerce/deliveries/deliveryManagement.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/orders',
-    name: 'orders',
-    component: resolve => require(['modules/ecommerce/order/List.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/marketplace/product/:code?/preview',
-    name: 'product preview',
-    component: resolve => require(['components/increment/imarketvue/marketplace/Product.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/traces/:code?',
-    name: 'traces',
-    component: resolve => require(['components/increment/imarketvue/trace/Traces.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/ledger',
-    name: 'ledger',
-    component: resolve => require(['modules/ecommerce/wallet/Ledger.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/wallet',
-    name: 'wallet',
-    component: resolve => require(['modules/ecommerce/wallet/Wallet.vue'], resolve),
-    meta: {
-      tokenRequired: true
-    }
-  }, {
-    path: '/createRequestBorrow',
-    name: 'createRequestBorrow',
-    component: resolve => require(['components/increment/imarketvue/shipping/CheckoutShipping.vue'], resolve),
     meta: {
       tokenRequired: true
     }
@@ -167,13 +75,6 @@ export default{
     component: resolve => require(['modules/admin/Accounts.vue'], resolve),
     meta: {
       tokenRequired: true
-    }
-  }, {
-    path: '/welcome',
-    name: 'welcome',
-    component: resolve => require(['modules/basic/Denied.vue'], resolve),
-    meta: {
-      tokenRequired: false
     }
   }
   ]
