@@ -1,141 +1,130 @@
  <template>
   <div>
+    <div class="system-header">
+      <a class="navbar-brand" v-on:click="redirect('dashboard')">
+        <img :src="require('src/assets/img/logo_white.png')" class="logo-brand">
+        <label class="navbar-brand hide-on-mobile text-white" v-html="common.APP_NAME_HTML"></label>
+      </a>
+    </div>
     <nav class="header-navbar">
-      <div class="system-header navbar navbar-expand-md">
-        <a class="navbar-brand" v-on:click="redirect('dashboard')">
-          <img :src="require('src/assets/img/favicon-alt.png')" class="logo-brand">
-          <label class="navbar-brand hide-on-mobile text-white" v-html="common.APP_NAME_HTML"></label>
-        </a>
-      </div>
-      <span class="navbar-menu-toggler-md" v-bind:class="{'active-menu': menuFlag === true}" data-toggle="collapse" data-target="#navPages" aria-controls="navPages" aria-expanded="false" aria-label="Toggle navigation" v-on:click="makeActive('menu')">
+      <span class="navbar-menu-toggler-md" v-bind:class="{'active-menu': menuFlag === true}" data-toggle="collapse" data-target="#idfactory" aria-controls="idfactory" aria-expanded="false" aria-label="Toggle navigation" v-on:click="makeActive('menu')">
           <i class="fa fa-bars" aria-hidden="true"></i>
       </span>
       <span class="left-menu-icons">
-        <!-- <label class="account-type  hide-on-mobile bg-warning" v-if="!common.header.indexOf('status') && user !== null">{{user.type}}</label> -->
-        <ul class="navbar-nav">
-          <li class="item" v-for="(item, index) in menu" :class="[{'selected': item.flag || $route.path === '/' + item.path}]" :key="index" v-if="(((item.accountType === user.type || item.accountType === 'ALL') && user.type !== 'ADMIN') || (user.type === 'ADMIN' && item.showOnAdmin === true)) && (item.accountStatus === 'ALL' || (user.subAccount === null || (user.subAccount !== null && user.subAccount.status === item.accountStatus)))" @click="setActive(index)">
-            <span class="nav-link">{{item.description}}</span>
-          </li>
-        </ul>
+        <label class="account-type  hide-on-mobile bg-warning" v-if="!common.header.indexOf('status') && user !== null">{{user.type}}</label>
       </span>
-      <div class="navbar-collapse collapse" id="navPages">
-        <ul class="navbar-nav">
-          <li class="item" v-for="(item, index) in menu" :class="[{'selected': item.flag || $route.path === '/' + item.path}]" :key="index" v-if="(((item.accountType === user.type || item.accountType === 'ALL') && user.type !== 'ADMIN') || (user.type === 'ADMIN' && item.showOnAdmin === true)) && (item.accountStatus === 'ALL' || (user.subAccount === null || (user.subAccount !== null && user.subAccount.status === item.accountStatus)))" @click="setActive(index)">
-            <span class="nav-link">{{item.description}}</span>
-          </li>
-        </ul>
-      </div>
-      <div class="right-menu-icons d-flex ml-auto justify-content-end align-items-center pr-0 h-100">
-        <span v-if="user.subAccount.merchant" class="pr-3 text-white">Logged in as: <b class="pl-2">{{user.subAccount.merchant.name}}</b></span>
-        <div class="dropdown row col-auto h-100 align-items-center" v-bind:class="{'active-menu': notifFlag === true}" data-toggle="dropdown" id="notifications" aria-haspopup="true" aria-expanded="false" v-on:click="makeActive('notif')" v-bind:onkeypress="makeActive('')"> 
+      <span class="right-menu-icons">
+        <div class="dropdown"> 
+          <span class="nav-item" v-bind:class="{'active-menu': settingFlag === true}" data-toggle="dropdown" id="settings" aria-haspopup="true" aria-expanded="false" v-on:click="makeActive('dropdown')" v-bind:onkeypress="makeActive('')">
             <span>
-              <i class="fa fa-bell text-white"></i>
-              <label class="notifications badge-danger" v-if="parseInt(user.notifications.current) > 0">{{user.notifications.current}}</label>
+              <i class="fa fa-cog"></i>
             </span>
-            <span class="dropdown-menu dropdown-menu-right dropdown-menu-notification" aria-labelledby="notifications">
-              <span class="notification-header" :class="[{'mb-3': user.notifications.data === null}]">
-                Notifications
-              </span>
-              <span class="notification-item" v-for="item, index in user.notifications.data" v-if="user.notifications.data !== null && item.status !== 'ac_viewed'" v-on:click="updateNotification(item, user.notifications.current, index)" v-bind:class="{'notification-item-unread': index < user.notifications.current}">
-                <span class="notification-title">
-                  {{item.title}}
+            <span class="dropdown-menu dropdown-menu-right shadow" aria-labelledby="settings">
+              <!-- <span class="dropdown-item-profile">
+                <span class="account-picture text-center">
+                  <span class="profile-photo-header">
+                    <span class="profile-image-holder-header"  v-if="user.profile !== null">
+                      <img v-bind:src="config.BACKEND_URL + user.profile.url">
+                    </span>
+                    <i class="fa fa-user-circle-o" v-else></i>
+                  </span>
                 </span>
-                <span class="notification-description">{{item.description}}</span>
-                <span class="notification-date">Posted on {{item.created_at_human}}</span>
+                <span class="account-info text-center">{{user.username}}</span>
+              </span> -->
+              <span class="dropdown-item dropdown-item-menu-title">
+                <label>Personal</label>
               </span>
-              <div class="text-center font-weight-bold">You have no notifications!</div>
+              <span class="dropdown-item" v-on:click="redirect(item.route)" v-for="(item, index) in common.profileMenu" :key="index">
+                <i v-bind:class="item.icon"></i>
+                <label>{{item.title}}</label>
+              </span>
+              <span class="dropdown-item dropdown-item-menu-title">
+                <label>Documents</label>
+              </span>
+              <!--GUIDE-->
+              <span class="dropdown-item" @click="openModal('#guideModal')">
+                <i class="far fa-question-circle"></i>
+                <label>Guide</label>
+              </span>
+              <!--PRIVACY POLICY-->
+              <span class="dropdown-item" @click="openModal('#privacyModal')">
+                <i class="fas fa-shield-alt"></i>
+                <label>Privacy Policy</label>
+              </span>            
+              <!--TERMS AND CONDITIONS-->
+              <span class="dropdown-item" @click="openModal('#termsAndConditionsModal')">
+                <i class="far fa-handshake"></i>
+                <label>Terms and Conditions</label>
+              </span>
+              <span class="dropdown-divider"></span>
+              <span class="dropdown-item text-danger" v-on:click="logOut()">
+                <i class="fas fa-sign-out-alt text-danger"></i>
+                  <label>Logout</label>
+                </span>
             </span>
+          </span>
         </div>
 
-        <div class="h-100"> 
-            <div class="dropdown row col-auto h-100 align-items-center" data-toggle="dropdown" id="messages" aria-haspopup="true" aria-expanded="false">
-              <div>
-                <i class="fas fa-envelope text-white"></i>
+<!--         <div class="dropdown"> 
+          <span class="nav-item" v-bind:class="{'active-menu': settingFlag === true}" data-toggle="dropdown" id="settings" aria-haspopup="true" aria-expanded="false" v-on:click="makeActive('dropdown')" v-bind:onkeypress="makeActive('')">
+            <span>
+              <i class="fa fa-bell"></i>
+            </span>
+            <span class="dropdown-menu dropdown-menu-right" aria-labelledby="settings">
+              <span v-for="item, index in data">
+                <i style="font-size:100%;" class="fa fa-bell">
+                {{item.display}} <p>{{item.created_at_human}}</p></i>
+              </span>
+            </span>
+          </span>
+        </div>     
+ -->
+        <div class="dropdown" v-if="user.messages.data !== null"> 
+            <span class="nav-item" data-toggle="dropdown" id="notifications" aria-haspopup="true" aria-expanded="false">
+              <span>
+                <i class="fas fa-envelope" style="font-size: 22px;margin-top: 2px;"></i>
                 <label class="badge badge-danger" style="margin-left: -15px;" v-if="parseInt(user.messages.totalUnreadMessages) > 0">{{user.messages.totalUnreadMessages}}</label>
-              </div>
-              <div class="dropdown-menu dropdown-menu-right dropdown-menu-notification" aria-labelledby="messages">
-                <div class="notification-header" @click="redirect('/' + common.messagesHeader.path)" :class="[{'mb-3': user.notifications.data === null}]">
+              </span>
+              <span class="dropdown-menu dropdown-menu-right dropdown-menu-notification" aria-labelledby="notifications">
+                <span class="notification-header" @click="redirect('/' + common.messagesHeader.path)">
                   Recent
                   <label class="badge badge-danger">{{user.messages.totalUnreadMessages}}</label>
-                </div>
-                <div class="notification-item" v-for="item, index in user.messages.data" v-if="user.messages.data !== null" @click="redirect('/' + common.messagesHeader.path + '/' + item.payload, item)">
-                  <div class="notification-title">
+                </span>
+                <span class="notification-item" v-for="item, index in user.messages.data" v-if="user.messages.data !== null" @click="redirect('/' + common.messagesHeader.path + '/' + item.payload, item)">
+                  <span class="notification-title">
                     {{item.title.username}}
                     <label class="badge badge-danger" style="margin-left: 5px;" v-if="parseInt(item.total_unread_messages) > 0">{{item.total_unread_messages}}</label>
-                  </div>
+                  </span>
                   <span class="notification-description">{{item.description}}</span>
                   <span class="notification-date">Posted on {{item.created_at_human}}</span>
-                </div>
-                <div class="text-center font-weight-bold">You have no messages!</div>
-              </div>
-            </div>
+                </span>
+              </span>
+            </span>
         </div>
 
-        <checkout-cart></checkout-cart>
 
-        <!-- market options here -->
-        <div class="h-100" v-if="user.type === 'MERCHANT'">
-          <div class="dropdown row col-auto h-100 align-items-center" id="merchantStuff" data-toggle="dropdown">
-            <i class="fa fa-store text-white"></i>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="merchantStuff">
-              <div class="dropdown-item dropdown-item-menu-title">
-                <label>Merchant Controls</label>
-              </div>
-              <div class="dropdown-item" v-on:click="redirect(item.route)" v-for="(item, index) in common.merchantMenu" :key="index">
-                  <i v-bind:class="item.icon"></i>
-                  <label>{{item.title}}</label>
-              </div>
-              <!-- <div class="dropdown-item" v-on:click="redirect(replaceme)"><i class="fa fa-file"></i>Ledger</div>
-              <div class="dropdown-item" v-on:click="redirect(replaceme)"><i class="fa fa-credit-card"></i>Wallet</div>
-              <div class="dropdown-item" v-on:click="redirect(replaceme)"><i class="fa fa-shopping-bag"></i>Summary of Orders</div>
-              <div class="dropdown-item" v-on:click="redirect('/deliveries')"><i class="fa fa-motorcycle"></i>Deliveries</div> -->
-            </div>
-          </div>
-        </div>
-        <div class="h-100">
-          <div class="dropdown row col-auto h-100 align-items-center px-1" v-bind:class="{'active-menu': settingFlag === true}" data-toggle="dropdown" id="settings" aria-haspopup="true" aria-expanded="false" v-on:click="makeActive('dropdown')" v-bind:onkeypress="makeActive('')"> 
-            <!-- <div class="nav-item"> -->
-                <!-- <i class="fa fa-cog my-auto text-white"></i> -->
-              <div v-if="user.profile && user.profile.url" style="width: 35px; height: 35px; overflow: hidden; border-width: 3px !important;" class="rounded-circle border border-white bg-white px-3">
-                <img :src="config.BACKEND_URL + user.profile.url" class="img-fluid">
-              </div>
-              <i v-else class="far fa-user-circle text-white" style="font-size: 30px;"></i>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="settings">
-                <div class="dropdown-item dropdown-item-menu-title">
-                  <label>Personal</label>
-                </div>
-                <div class="dropdown-item" v-on:click="redirect(item.route)" v-for="(item, index) in common.profileMenu" :key="index">
-                  <i v-bind:class="item.icon"></i>
-                  <label>{{item.title}}</label>
-                </div>
-                <span class="dropdown-item dropdown-item-menu-title">
-                  <label>Documents</label>
+        <div class="dropdown" v-if="user.notifications.data !== null"> 
+            <span class="nav-item" v-bind:class="{'active-menu': notifFlag === true}" data-toggle="dropdown" id="notifications" aria-haspopup="true" aria-expanded="false" v-on:click="makeActive('notif')" v-bind:onkeypress="makeActive('')" v-if="user.notifications.data !== null">
+              <span>
+                <i class="fa fa-bell"></i>
+                <label class="notifications badge-danger" v-if="parseInt(user.notifications.current) > 0">{{user.notifications.current}}</label>
+              </span>
+              <span class="dropdown-menu dropdown-menu-right dropdown-menu-notification" aria-labelledby="notifications">
+                <span class="notification-header">
+                  Notifications
                 </span>
-                <!--GUIDE-->
-                <span class="dropdown-item" @click="openModal('#guideModal')">
-                  <i class="far fa-question-circle"></i>
-                  <label>Guide</label>
-                </span>
-                <!--PRIVACY POLICY-->
-                <span class="dropdown-item" @click="openModal('#privacyModal')">
-                  <i class="fas fa-shield-alt"></i>
-                  <label>Privacy Policy</label>
-                </span>            
-                <!--TERMS AND CONDITIONS-->
-                <span class="dropdown-item" @click="openModal('#termsAndConditionsModal')">
-                  <i class="far fa-handshake"></i>
-                  <label>Terms and Conditions</label>
-                </span>
-                <span class="dropdown-item bg-danger" v-on:click="logOut()">
-                  <i class="fas fa-sign-out-alt"></i>
-                    <label>Logout</label>
+                <span class="notification-item" v-for="item, index in user.notifications.data" v-if="user.notifications.data !== null && item.status !== 'ac_viewed'" v-on:click="updateNotification(item, user.notifications.current, index)" v-bind:class="{'notification-item-unread': index < user.notifications.current}">
+                  <span class="notification-title">
+                    {{item.title}}
                   </span>
-              </div>
-            <!-- </div> -->
-          </div>
+                  <span class="notification-description">{{item.description}}</span>
+                  <span class="notification-date">Posted on {{item.created_at_human}}</span>
+                </span>
+              </span>
+            </span>
         </div>
 
-      </div>
+      </span>
 
     </nav>
 
@@ -161,27 +150,6 @@
    </div>
   </div>
 </template>
-<style lang="scss">
-@media (max-width: 1200px) {
-  .navbar-collapse{
-    display: none;
-  }
-
-  .collapse.show {
-    display: none;
-  }
-}
-
-@media (max-width: 1199px) {
-  .collapsing {
-    display: block
-  }
-
-  .collapse.show {
-    display: block
-  }
-}
-</style>
 <style scoped lang="scss">
 @import "~assets/style/colors.scss";
 
@@ -235,6 +203,7 @@ body{
     height: 50px;
     font-size: 24px;
     width: 18%;
+    background: $darkPrimary;
     text-align: center;
     position: fixed;
   }
@@ -243,10 +212,10 @@ body{
     background: $primary;
     height: 50px;
     float: left;
-    width: 100%;
+    width: 82%;
     position: fixed;
-    top: 0;
-    // z-index: 5000;
+    margin-left: 18%;
+    z-index: 5000;
   }
 
   /*-- navbar --*/
@@ -254,48 +223,8 @@ body{
     color: #fff;
     text-transform: uppercase;
     line-height: 30px;
-    font-family: 'Helvetica';
-    font-style: oblique;
-    font-weight: 900;
   }
   
-  #navPages {
-    position: absolute;
-    top: 50px;
-    width: 100%;
-    left: 0;
-  }
-
-  #navPages .navbar-nav {
-    padding-top: 15px;
-    justify-content: start;
-    align-items: start;
-    flex-flow: column;
-    background: white;
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.4);
-  }
-
-  #navPages .navbar-nav .item {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 25px;
-    width: 100%;
-    box-sizing: border-box;
-    margin: 0;
-  }
-
-  #navPages .navbar-nav .item .nav-link {
-    color: black;
-  }
-
-  #navPages .navbar-nav .item.selected {
-    background: $primary;
-  }
-
-  #navPages .navbar-nav .item.selected .nav-link {
-    color: white;
-  }
-
 /*---------------------------------------------
  
 
@@ -325,43 +254,17 @@ body{
     background: $primary;
   }
 
-  .row.col-auto {
-    margin: 0px;
+  .shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
   }
 
-  .navbar-nav {
-    flex-direction: row;
-    align-items: center;
-    vertical-align: center;
+  .shadow {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
   }
 
-  .navbar-nav .item {
-    position: relative;
-    text-align: center;
-    height: fit-content;
-    margin: 0 .5rem;
-    padding: .5rem;
-    cursor: pointer;
+  .shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
   }
-
-  .navbar-nav .item::after {
-    content: '';
-    position: absolute;
-    height: 3px;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-  }
-
-  .navbar-nav .item:hover::after,
-  .navbar-nav .item.selected::after {
-    background-color: white;
-  }
-
-  .navbar-nav .item .nav-link {
-    color: white;
-  }
-
 /*---------------------------------------------
        
 
@@ -374,8 +277,8 @@ body{
 #messagesHeader{
   margin-left: 70%;
 }
-
 .nav-item{
+  width: 5%;
   height: 50px;
   text-align: center;
   float: right;
@@ -388,12 +291,9 @@ body{
   float: left;
   width: 50%;
   position: fixed;
-  // z-index: 100;
+  z-index: 100;
 }
 
-.navbar-menu-toggler-md {
-  margin-left: 18%;
-}
 .nav-item span i{
   padding: 12px 0 15px 0;
   font-size: 24px;
@@ -425,21 +325,16 @@ body{
   z-index: 1;
 }
 
-.nav-item:hover,
-.right-menu-icons .col-auto.h-100:hover{
-  background: $lightPrimary;
-  cursor: pointer;
-}
-
-.dropdown:hover {
-  background: $lightPrimary;
+.nav-item:hover{
+  background: $darkPrimary;
   cursor: pointer;
 }
 
 .dropdown-menu{
+  // width: 250px;
   min-height: 250px;
+  border-radius: 0px !important;
   padding-bottom: 0px !important;
-  box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
 }
 
 .dropdown-menu-notification{
@@ -455,25 +350,10 @@ body{
   float: left !important;
   background: #fff !important;
   padding-top: 0px !important;
-  display: flex;
-  align-items: center;
-}
-
-.dropdown-item label {
-  margin-bottom: 0;
 }
 
 .dropdown-item:hover{
   background: #ddd !important;
-}
-
-.dropdown-item.bg-danger {
-  background: $dangerLight !important;
-  color: $danger;
-}
-
-.dropdown-item.bg-danger i {
-  color: $danger !important;
 }
 
 .dropdown-item i{
@@ -481,6 +361,11 @@ body{
   padding-right: 10px !important;
   color: $primary !important;
 }
+
+.dropdown-item i.text-danger {
+  color: #dc3545!important
+}
+
 .dropdown-item label{
   font-size: 14px !important;
 }
@@ -718,7 +603,8 @@ body{
       width: 18%;
     }
     .header-navbar{
-      width: 100%;
+      width: 82%;
+      margin-left: 18%;
     }
     .header-navbar-nav{
       width: 15% !important;
@@ -728,10 +614,12 @@ body{
     }
     .left-menu-icons{
       width: 40% !important;
-      margin-left: 18%;
     }
     .right-menu-icons{
       width: 60% !important;
+    }
+    .nav-item{
+      width: 5% !important;
     }
   }
 
@@ -740,7 +628,8 @@ body{
       width: 18%;
     }
     .header-navbar{
-      width: 100%;
+      width: 82%;
+      margin-left: 18%;
     }
     .header-navbar-nav{
       width: 30%;
@@ -750,7 +639,6 @@ body{
     }
     .left-menu-icons{
       width: 60% !important;
-      margin-left: 25%;
     }
     .right-menu-icons{
       width: 40%;
@@ -762,23 +650,17 @@ body{
 
 @media (max-width: 991px){
    .system-header{
-      width: 26%;
+      width: 30%;
     }
-
     .header-navbar{
-      width: 100%;
+      width: 70%;
+      margin-left: 30%;
     }
    .header-navbar-nav{
       width: 30%;
     }
-
-    .left-menu-icons {
-      display: none;
-    }
-
     .navbar-menu-toggler-md{
       width: 10%;
-      margin-left: 25%;
       text-align: center;
       display: block;
     }
@@ -786,7 +668,7 @@ body{
       width: 30% !important;
     }
     .right-menu-icons{
-      width: 65% !important;
+      width: 70% !important;
     }
     .nav-item{
       width: 10%;
@@ -802,17 +684,15 @@ body{
     .system-header{
       width: 15%;
     }
-
-    .navbar-menu-toggler-md {
-      margin-left: 15%;
-    }
+    
     .navbar-brand{
       width: 100% !important;
       margin: 0px !important;
     }
     
     .header-navbar{
-      width: 100%;
+      width: 85%;
+      margin-left: 15%;
     }
 
     .nav-item{
@@ -829,7 +709,7 @@ body{
     }
 
     .right-menu-icons{
-      width: 75% !important;
+      width: 80% !important;
     }
 
     .hide-on-mobile{
@@ -865,8 +745,6 @@ export default {
       settingFlag: false,
       menuFlag: false,
       notifFlag: false,
-      menu: COMMON.sidebarMenu,
-      prevMenu: 0,
       config: CONFIG,
       confirmation: {
         message: null,
@@ -880,63 +758,13 @@ export default {
       common: COMMON
     }
   },
-  props: ['sidebarFlag'],
-  watch: {
-    '$route' (to, from) {
-      let index = null
-      for(var i = 0; i < COMMON.sidebarMenu.length && !index; i++) {
-        let item = COMMON.sidebarMenu[i]
-        if(to.path === '/' + item.path) {
-          index = i
-        }
-      }
-      if(index !== null){
-        this.setActiveOnWatch(index, to.path)
-      }else{
-        if(this.prevMenu !== null){
-          this.menu[this.prevMenu].flag = false
-        }
-      }
-    }
-  },
-  components: {
-    'checkout-cart': require('modules/ecommerce/marketplace/Cart.vue')
-  },
   methods: {
-    setActive(index, code = null){
-      if(this.prevMenu !== index){
-        this.menu[this.prevMenu].flag = false
-        this.menu[index].flag = true
-        if(this.menu[this.prevMenu].subMenu !== null){
-          this.menu[this.prevMenu].subMenu[this.subPrevMenu].flag = false
-        }
-        this.prevMenu = index
-      }
-      if(this.menu[index].subMenu === null){
-        ROUTER.push('/' + this.menu[this.prevMenu].path)
-        $('.navbar-collapse').collapse('hide')
-      }
-    },
-    setActiveOnWatch(index, path){
-      if(this.prevMenu !== index){
-        this.menu[this.prevMenu].flag = false
-        this.menu[index].flag = true
-        if(this.menu[this.prevMenu].subMenu !== null){
-          this.menu[this.prevMenu].subMenu[this.subPrevMenu].flag = false
-        }
-        this.prevMenu = index
-      }
-      if(this.menu[index].subMenu === null){
-        ROUTER.push(path)
-        $('.navbar-collapse').collapse('hide')
-      }
-    },
     makeActive(icon){
       if(icon === 'dropdown'){
         this.settingFlag = true
         this.menuFlag = false
         this.notifFlag = false
-      }else if(icon === 'menu'){
+      }else if(icon === 'sidebar'){
         this.settingFlag = false
         this.menuFlag = true
         this.notifFlag = false
@@ -963,13 +791,13 @@ export default {
     display(){
     },
     initPusher(){
+      console.log('hi')
       if(CONFIG.PUSHER.flag === 'pusher'){
         window.Echo = new Echo({
           broadcaster: 'pusher',
           key: CONFIG.PUSHER.key,
           cluster: 'ap1',
-          encrypted: true,
-          authEndpoint: CONFIG.API_URL_BROADCAST + '?token=' + AUTH.tokenData.token + '&account_id=' + this.user.userID
+          encrypted: true
         })
       }else{
         window.Echo = new Echo({
@@ -979,20 +807,15 @@ export default {
           wsPort: CONFIG.PUSHER.wsPort,
           disableStats: true,
           enabledTransports: ['ws', 'wss'],
-          authEndpoint: CONFIG.API_URL_BROADCAST + '?token=' + AUTH.tokenData.token + '&account_id=' + this.user.userID
+          encrypted: true
         })
       }
       window.Echo.channel(COMMON.pusher.channel)
       .listen('Call', e => {
-        console.log('hello' + e)
-      })
-      .listen(COMMON.pusher.rider, data => {
-        AUTH.manageRider(data.data)
-      })
-      .listen(COMMON.pusher.orders, order => {
-        AUTH.addOrder(order)
+        console.log(e)
       })
       .listen(COMMON.pusher.notifications, e => {
+        console.log(e)
         AUTH.addNotification(e.data)
       })
       .listen(COMMON.pusher.messages, e => {
@@ -1011,9 +834,6 @@ export default {
             this.retrieveMessages(parseInt(e.data.id))
           }
         }
-      })
-      window.Echo.private(COMMON.pusher.channel).listenForWhisper('searching', e => {
-        console.log(e)
       })
     },
     retrieveMessages(id){
