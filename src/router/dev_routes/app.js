@@ -76,6 +76,13 @@ export default{
     meta: {
       tokenRequired: true
     }
+  }, {
+    path: '/templates',
+    name: 'templates',
+    component: resolve => require(['modules/templates/template.vue'], resolve),
+    meta: {
+      tokenRequired: false
+    }
   }
   ]
 }
