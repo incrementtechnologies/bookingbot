@@ -1,5 +1,12 @@
 export default{
   routes: [{
+    path: '/login',
+    name: 'login',
+    component: resolve => require(['components/increment/basic/Login.vue'], resolve),
+    meta: {
+      tokenRequired: false
+    }
+  }, {
     path: '/signup',
     name: 'signup',
     component: resolve => require(['components/increment/basic/Signup.vue'], resolve),
