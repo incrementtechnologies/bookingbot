@@ -2,11 +2,12 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends APIModel
+class User extends Authenticatable
 {
-		protected $table = 'accounts';
+    protected $table ='accounts';
     protected $hidden = array('password');
 
     public function user_type()

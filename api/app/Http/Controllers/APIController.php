@@ -12,375 +12,399 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuthExceptions\JWTException;
-use App\CompanyBranchEmployee;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Carbon\Carbon;
+use App\UserAuth;
+use Increment\Account\Models\Account;
+use App\LoginLogger;
+use App\Jobs\Email;
 
 class APIController extends Controller
 {
-    protected $model = null;
-    protected $validation = array();
-    protected $test = null;
-    protected $userSession = null;
-    protected $response = array(
+  /*
+    Author: Kennette Canales
+    Version: 1.0
+    Company: Payhiram
+    Website: www.payhiram.ph
+  */
+  protected $model = NULL;
+  protected $currency = array('PHP');
+  protected $foreignTable = [];
+  protected $editableForeignTable = array();
+  protected $requiredForeignTable = array();
+  protected $response = array(
       "data" => null,
       "error" => array(),// {status, message}
       "debug" => null,
-      "request_timestamp" => 0
-    );
-    protected $responseType = 'json';
-    protected $rawRequest = null;
-    protected $tableColumns = null;
-    protected $notRequired = array();
-    protected $defaultValue = array();
-    protected $requiredForeignTable = array();//children that are always retrieve, singular
-    /**
-      Array for single fileupload input.
-      [{
-        "name" => '', Name of the input
-        "path" => '', Path to be saved
-        "column" => '', column name in the table
-        "replace" => Boolean Delete previous file
-      }]
-    **/
-    protected $singleImageFileUpload = array();
-    /***
-      Array of editable table. The value can be list of table names or associative array of table with its rules
-      List:
-        [table1, table2, table3]
-      With rules
-        [
-          table1 => array(
-            no_create_on_update: true
-          )
-          table2 => array()
-        ]
-      Rules:
-        no_create_on_update boolean prevent creation of foreign table during update operation
-    **/
-    protected $editableForeignTable = array();
-    protected $foreignTable = array();
-    protected $useUserCompanyID = true;
+      "request_timestamp" => 0,
+      "timezone" => 'Asia/Manila'
+  );
 
-    public function test(){
-      $user = $this->getUserCompanyID();
-      // $this->printR($this->userSession);
-      // echo response()->json($user);
-    }
-    public function output(){
-      // sleep(2);
-      $this->response["request_timestamp"] = date("Y-m-d h:i:s");
-      if($this->responseType == 'array'){
-        return $this->response;
-      }else{
-        return response()->json($this->response);
-      }
-      // echo json_encode($this->response);
-    }
-    public function create(Request $request){
-      $this->rawRequest = $request;
-      $this->createEntry($request->all());
-      return $this->output();
-    }
-    public function retrieve(Request $request){
-      $this->rawRequest = $request;
-      $this->retrieveEntry($request->all());
-      return $this->output();
-    }
-    public function update(Request $request){
-      $this->rawRequest = $request;
-      if ($request->hasFile('image_file')){
-      }
-      else{
-      }
+  protected $whiteListedDomain = array(
+    'https://runwayexpress.co.uk/',
+  );
 
-      $this->updateEntry($request->all());
+  protected $whiteListedDomainOrigin = array(
+    'https://runwayexpress.co.uk',
+    'https://www.runwayexpress.co.uk',
+    'http://www.runwayexpress.co.uk',
+    'http://runwayexpress.co.uk',
+    'com.runwayexpress',
+    'http://localhost:8001'
+  );
 
-      return $this->output();
+  protected $notRequired = array();
+  protected $responseType = 'json'; 
+  protected $rawRequest = null;
+  protected $singleImageFileUpload = array();
+  protected $validation = array();
+
+  protected $codeSource = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  protected $installment = false;
+
+  public function checkAuthenticatedUser($flag = false)
+  {
+    // if(env('TEST') == false){
+    //   if($flag == true){
+    //     if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
+    //       $this->response['error'] = array(
+    //         'message' => 'Invalid Domain!',
+    //         'status'  => 404
+    //       );
+    //       return false;
+    //     }
+    //     if(isset($_SERVER['HTTP_ORIGIN']) && !in_array($_SERVER['HTTP_ORIGIN'], $this->whiteListedDomainOrigin)){
+    //       $this->response['error'] = array(
+    //         'message' => 'Invalid Domain!',
+    //         'status'  => 404
+    //       );
+    //       return false;
+    //     }
+    //     return true;
+    //   }
+    //   try {
+    //     $user = JWTAuth::parseToken()->authenticate();
+    //     return true;
+    //   } catch (TokenExpiredException $e) {
+    //     $this->response['error'] = array(
+    //       'message' => 'Invalid Credentials',
+    //       'status'  => $e->getStatusCode()
+    //     );
+    //     return false;
+    //   } catch (TokenInvalidException $e) {
+    //     $this->response['error'] = array(
+    //       'message' => 'Invalid Credentials',
+    //       'status'  => $e->getStatusCode()
+    //     );
+    //     return false;
+    //   }      
+    // }else{
+    //   if(isset($_SERVER['HTTP_REFERER']) && !in_array($_SERVER['HTTP_REFERER'], $this->whiteListedDomain)){
+    //     $this->response['error'] = array(
+    //       'message' => 'Invalid Domain!',
+    //       'status'  => 404
+    //     );
+    //     return false;
+    //   }
+    //   if(isset($_SERVER['HTTP_ORIGIN']) && !in_array($_SERVER['HTTP_ORIGIN'], $this->whiteListedDomainOrigin)){
+    //     $this->response['error'] = array(
+    //       'message' => 'Invalid Domain!',
+    //       'status'  => 404
+    //     );
+    //     return false;
+    //   }
+    //   try {
+    //     $user = JWTAuth::parseToken()->authenticate();
+    //     return true;
+    //   } catch (TokenExpiredException $e) {
+    //     $this->response['error'] = array(
+    //       'message' => 'Invalid Credentials',
+    //       'status'  => $e->getStatusCode()
+    //     );
+    //     return false;
+    //   } catch (TokenInvalidException $e) {
+    //     $this->response['error'] = array(
+    //       'message' => 'Invalid Credentials',
+    //       'status'  => $e->getStatusCode()
+    //     );
+    //     return false;
+
+    //   } catch (JWTException $e) {
+    //     $this->response['error'] = array(
+    //       'message' => 'Invalid Credentials',
+    //       'status'  => $e->getStatusCode()
+    //     );
+    //     return false;
+    //   }
+    // }
+    // the token is valid and we have found the user via the sub claim
+    return true;
+  }
+
+  public function test()
+  {
+    return "Welcome to ".env('APP_NAME')." Controller!";
+  }
+
+  public function response()
+  {
+    $this->response["request_timestamp"] = date("Y-m-d h:i:s");
+    if($this->responseType == 'array'){
+      return $this->response;
+    }else{
+      return response()->json($this->response);
     }
-    public function delete(Request $request){
-      $this->deleteEntry($request->all());
-      return $this->output();
+  }
+
+  public function create(Request $request)
+  { 
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
     }
-    public function printR($object){
-      echo "<pre>";
-      print_r($object);
-      echo "</pre>";
+    $this->rawRequest = $request;
+    $this->insertDB($request->all());
+    return $this->response();
+  }
+
+  public function retrieve(Request $request)
+  {
+    $this->rawRequest = $request;
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
     }
-    /**
-      Check if form fields are valid
-      ouput : true - if no errors
-              output() - if errors found.
-    */
-    public function filterRequest($request){
-      foreach($this->tableColumns as $column){
-        switch($column){
-          case "company_id":
-            if($this->useUserCompanyID){
-              $request[$column] = $this->getUserCompanyID();
+
+    $this->retrieveDB($request->all());
+    return $this->response();
+  }
+
+  public function update(Request $request)
+  {
+    $this->rawRequest = $request;
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
+    if ($request->hasFile('image_file')){
+    }
+    else{
+    }
+    $this->updateDB($request->all());
+    return $this->response();
+  }
+
+  public function delete(Request $request)
+  {
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
+    $this->deleteDB($request->all());
+    return $this->response();
+  }
+
+  public function insertDB($request, $flag = false)
+  {
+    if($this->checkAuthenticatedUser($flag) == false){
+      return $this->response();
+    }
+    $tableColumns = $this->model->getTableColumns();
+    $this->tableColumns = $tableColumns;
+    if(!$this->isValid($request, "create")){
+      return $this->response();
+    }
+    unset($tableColumns[0]);
+    foreach($tableColumns as $columnName){
+      if(isset($request[$columnName])){
+        $this->model->$columnName = $request[$columnName];
+      }else if(isset($this->defaultValue[$columnName])){
+        $this->model->$columnName = $this->defaultValue[$columnName];
+      }
+    }
+    $this->model->save();
+    $childID = array();
+    if($this->model->id && count($this->singleImageFileUpload)){
+      for($x = 0; $x < count($this->singleImageFileUpload); $x++){
+        $this->uploadSingleImageFile(
+          $this->model->id,
+          $this->singleImageFileUpload[$x]['name'],
+          $this->singleImageFileUpload[$x]['path'],
+          $this->singleImageFileUpload[$x]['column']
+        );
+      }
+    }
+    if($this->model->id && $this->editableForeignTable){
+      foreach($this->editableForeignTable as $childTable){
+        if(isset($request[$childTable]) && $request[$childTable]){
+          $child = $request[$childTable];
+          if(count(array_filter(array_keys($child), 'is_string')) > 0){//associative
+            if(!isset($childID[$childTable])){
+              $childID[$childTable] = array();
             }
-            break;
-        }
-      }
-      return $request;
-    }
-    public function isValid($request, $action = "create", $subTableName = false){
-      /*Require all fields*/
-      unset($this->tableColumns[0]);
-      array_pop($this->tableColumns);//deleted at
-      array_pop($this->tableColumns);//updated at
-      array_pop($this->tableColumns);//created at
-      foreach($this->tableColumns as $column){
-        $this->validation[$column] = (isset($this->validation[$column])) ? $this->validation[$column] : '';
-        if(!in_array($column, $this->notRequired) && !isset($this->defaultValue[$column])){//requiring all field by default
-          if($action !== "update"){
-            $this->validation[$column] = $this->validation[$column].($this->validation[$column] ? "| ":"")."required";
-          }else if($action === "update"){
-            if(in_array($column, $request)){
-              $this->validation[$column] = $this->validation[$column].($this->validation[$column] ? "| ":"")."required";
-            }else{
-
-              unset($this->validation[$column]);
+            $child[str_singular($this->model->getTable()).'_id'] = $this->model->id;
+            $foreignTable = $this->model->newModel($childTable, $child);
+            foreach($child as $childKey => $childValue){
+              $foreignTable->$childKey = $childValue;
             }
-          }
-        }
-      }
-      if($action == "update"){
-        $this->validation["id"] = "required";
-        if(!isset($request["id"])){
-          $this->response["error"]["status"] = 102;
-          $this->response["error"]["message"] = "ID required";
-          return false;
-        }
-      }
-      if(count($this->validation)){
-        foreach($this->validation as $validationKey => $validationValue){
-          if($action == "update"){
-            if(strpos( $validationValue, "unique" ) !== false ) { //check if rule has unique
-              $rules = explode("|", $this->validation[$validationKey]);
-              foreach($rules as $ruleKey => $ruleValue){ //find the unique rule
-                if(strpos( $ruleValue, "unique" ) !== false){
-                  $rules[$ruleKey] = Rule::unique(str_replace("unique:", "", $ruleValue), $validationKey)->ignore($request["id"], "id");
-                }
-              }
-              $this->validation[$validationKey] = $rules;
-            }
-          }
-          if(strpos( $validationKey, "_id" ) !== false){
-            $table = explode(".", str_plural(str_replace("_id", "", $validationKey)));
-            $table = (count($table) > 1) ? $table[1] : $table[0];
-            if(strpos( $validationKey, "parent" ) !== false){
-              $table = $this->model->getTable();
-            }
-            $this->validation[$validationKey] = $this->validation[$validationKey]."|exists:".$table.",id";
-          }
-        }
-        $validator = Validator::make($request, $this->validation);
-        if ($validator->fails()) {
-          if(!$subTableName){
-            $this->response["error"]["status"] = 100;
-            $this->response["error"]["message"] = $validator->errors()->toArray();
-          }
-          return false;
-        }else{
-          return true;
-        }
-      }
-    }
-    public function createEntry($request){
-      $responseType = isset($request['response_type']) ? $request['response_type'] : 'json';
-      $tableColumns = $this->model->getTableColumns();
-      $this->tableColumns = $tableColumns;
-      $request = $this->filterRequest($request);
-
-      if(!$this->isValid($request, "create")){
-        return $this->output();
-      }
-      unset($tableColumns[0]);
-      foreach($tableColumns as $columnName){
-        if(isset($request[$columnName])){
-          $this->model->$columnName = $request[$columnName];
-        }else if(isset($this->defaultValue[$columnName])){
-          $this->model->$columnName = $this->defaultValue[$columnName];
-        }
-      }
-      $this->model->save();
-      $childID = array();
-      if($this->model->id && count($this->singleImageFileUpload)){
-        for($x = 0; $x < count($this->singleImageFileUpload); $x++){
-          $this->uploadSingleImageFile(
-            $this->model->id,
-            $this->singleImageFileUpload[$x]['name'],
-            $this->singleImageFileUpload[$x]['path'],
-            $this->singleImageFileUpload[$x]['column']
-          );
-        }
-      }
-      if($this->model->id && $this->editableForeignTable){
-        foreach($this->editableForeignTable as $childTable){
-          if(isset($request[$childTable]) && $request[$childTable]){
-            $child = $request[$childTable];
-            if(count(array_filter(array_keys($child), 'is_string')) > 0){//associative
+            $result = $this->model->find($this->model->id)->$childTable()->save($foreignTable);
+            $childID[$childTable][] = $result["id"];
+          }else{ // list
+            foreach($child as $childValue){
               if(!isset($childID[$childTable])){
                 $childID[$childTable] = array();
               }
-              $child[str_singular($this->model->getTable()).'_id'] = $this->model->id;
-              $foreignTable = $this->model->newModel($childTable, $child);
-              foreach($child as $childKey => $childValue){
-                $foreignTable->$childKey = $childValue;
+              $childValue[str_singular($this->model->getTable()).'_id'] = $this->model->id;
+              $foreignTable = $this->model->newModel($childTable, $childValue);
+              foreach($childValue as $childValueKey => $childValueValue){
+                if($childValueValue == null || $childValueValue == "" || empty($childValueValue)){
+                  $foreignTable->$childValueKey = $childValueValue;
+                }
               }
               $result = $this->model->find($this->model->id)->$childTable()->save($foreignTable);
               $childID[$childTable][] = $result["id"];
-            }else{ // list
-              foreach($child as $childValue){
-                if(!isset($childID[$childTable])){
-                  $childID[$childTable] = array();
-                }
-                $childValue[str_singular($this->model->getTable()).'_id'] = $this->model->id;
-                $foreignTable = $this->model->newModel($childTable, $childValue);
-                foreach($childValue as $childValueKey => $childValueValue){
-                  if($childValueValue == null || $childValueValue == "" || empty($childValueValue)){
-                    $foreignTable->$childValueKey = $childValueValue;
-                  }
-                }
-                $result = $this->model->find($this->model->id)->$childTable()->save($foreignTable);
-                $childID[$childTable][] = $result["id"];
+            }
+          }
+        }
+      }
+      $response = $this->model->id;
+      if(count($childID)){
+        $childID["id"] = $this->model->id;;
+        $response = $childID;
+      }
+      $this->response["data"] = $response;
+      return $response;
+    }else{
+      if($this->model->id){
+        $this->response["data"] = $this->model->id;
+        return true;
+      }else{
+        $this->response["error"]["status"] = 1;
+        $this->response["error"]["message"] = "Failed to create entry in database";
+        return false;
+      }
+    }
+  }
+  
+  public function isValid($request, $action = "create", $subTableName = false){
+    unset($this->tableColumns[0]);
+    array_pop($this->tableColumns);//deleted at
+    array_pop($this->tableColumns);//updated at
+    array_pop($this->tableColumns);//created at
+    foreach($this->tableColumns as $column){
+      $this->validation[$column] = (isset($this->validation[$column])) ? $this->validation[$column] : '';
+      if(!in_array($column, $this->notRequired) && !isset($this->defaultValue[$column])){//requiring all field by default
+        if($action !== "update"){
+          $this->validation[$column] = $this->validation[$column].($this->validation[$column] ? "| ":"")."required";
+        }else if($action === "update"){
+          if(in_array($column, $request)){
+            $this->validation[$column] = $this->validation[$column].($this->validation[$column] ? "| ":"")."required";
+          }else{
+
+            unset($this->validation[$column]);
+          }
+        }
+      }
+    }
+    if($action == "update"){
+      $this->validation["id"] = "required";
+      if(!isset($request["id"])){
+        $this->response["error"]["status"] = 102;
+        $this->response["error"]["message"] = "ID required";
+        return false;
+      }
+    }
+    if(count($this->validation)){
+      foreach($this->validation as $validationKey => $validationValue){
+        if($action == "update"){
+          if(strpos( $validationValue, "unique" ) !== false ) { //check if rule has unique
+            $rules = explode("|", $this->validation[$validationKey]);
+            foreach($rules as $ruleKey => $ruleValue){ //find the unique rule
+              if(strpos( $ruleValue, "unique" ) !== false){
+                $rules[$ruleKey] = Rule::unique(str_replace("unique:", "", $ruleValue), $validationKey)->ignore($request["id"], "id");
               }
             }
+            $this->validation[$validationKey] = $rules;
           }
         }
-        $response = $this->model->id;
-        if(count($childID)){
-          $childID["id"] = $this->model->id;;
-          $response = $childID;
+        if(strpos( $validationKey, "_id" ) !== false){
+          $table = explode(".", str_plural(str_replace("_id", "", $validationKey)));
+          $table = (count($table) > 1) ? $table[1] : $table[0];
+          if(strpos( $validationKey, "parent" ) !== false){
+            $table = $this->model->getTable();
+          }
+          $this->validation[$validationKey] = $this->validation[$validationKey]."|exists:".$table.",id";
         }
-        $this->response["data"] = $response;
-        return $response;
+      }
+      $validator = Validator::make($request, $this->validation);
+      if ($validator->fails()) {
+        if(!$subTableName){
+          $this->response["error"]["status"] = 100;
+          $this->response["error"]["message"] = $validator->errors()->toArray();
+        }
+        return false;
       }else{
-        if($this->model->id){
-          $this->response["data"] = $this->model->id;
-          return true;
-        }else{
-          $this->response["error"]["status"] = 1;
-          $this->response["error"]["message"] = "Failed to create entry in database";
-          return false;
-        }
+        return true;
       }
-
     }
-    public function uploadSingleImageFile($id, $inputName, $path, $dbColumn, $replace = false){
-      if($id){
-        if ($this->rawRequest->hasFile($inputName) && $this->rawRequest->file($inputName)->isValid()){
-          $imagePath = $this->rawRequest[$inputName]->store($path);
+  }
 
-
-          if($replace){
-            $modelTemp = clone $this->model;
-            $this->model->where('id', '=',$id);
-            $entry = $this->retrieveEntry(array(
-              "id" => $id
-            ));
-            if(count($entry) && $entry[0][$dbColumn] != '' && $entry[0][$dbColumn] != null){
-              Storage::delete($path.'/'.$entry[0][$dbColumn]);
-            }
-            $this->model = $modelTemp;
-          }
-          $responseTemp = $this->response;
-          $this->updateEntry(array(
-            'id' => $id,
-            $dbColumn => str_replace($path.'/', '', $imagePath)
-          ), true);
-          $this->response = $responseTemp;
-          return true;
-        }
+  public function localization(){
+      $ip = null;
+      if(isset($_SERVER['HTTP_CLIENT_IP'])){
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+      }else if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+      }else{
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
       }
-      return false;
-    }
-    function initCondition($condition){
-      $initializedCondition = array(
-        "main_table" => array(),
-        "foreign_table" => array()
-      );
-      if(isset($condition)){
-        for($x = 0; $x < count($condition); $x++){
-          $columnExploded = explode('.', $condition[$x]['column']);
-          if(count($columnExploded) > 1){ // foreign table
-            if(!isset($initializedCondition['foreign_table'][$columnExploded[0]])){
-              $initializedCondition['foreign_table'][$columnExploded[0]] = array();
-            }
-            $initializedCondition['foreign_table'][$columnExploded[0]][] = $condition[$x];
-          }else{
-            $initializedCondition['main_table'][] = $condition[$x];
-          }
-
-        }
+      $result = @unserialize(file_get_contents('http://ip-api.com/php/'.$ip));
+      if($result && $result['status'] == 'success') {
+        $this->response['timezone'] = $result['timezone'];
       }
-      return $initializedCondition;
-    }
-    public function retrieveEntry($request){
-      $responseType = isset($request['response_type']) ? $request['response_type'] : 'json';
-      $allowedForeignTable = array_merge($this->foreignTable, $this->editableForeignTable, $this->requiredForeignTable);
+  }
+  public function retrieveDB($request)
+  {
+      if($this->checkAuthenticatedUser() == false){
+        return $this->response();
+      }
+      $this->localization();
       $tableName = $this->model->getTable();
       $singularTableName = str_singular($tableName);
       $tableColumns = $this->model->getTableColumns();
-      // if(count($this->requiredForeignTable)){
-      //   $this->model = $this->model->with($this->requiredForeignTable);
-      //   for($x = 0; $x < count($this->requiredForeignTable); $x++){
-      //     $singularForeignTable = str_singular($this->requiredForeignTable[$x]);
-      //     $pluralForeignTable = str_plural($this->requiredForeignTable[$x]);
-      //     $this->model = $this->model->leftJoin($pluralForeignTable, $pluralForeignTable.'.id', '=', $tableName.'.'.$singularForeignTable.'_id');
-      //   }
-      // }
-      $condition = isset($request['condition']) ? $this->initCondition($request['condition']) : array('main_table' => array(), 'foreign_table' => array());
-      if(!empty($condition['foreign_table'])){
-        $foreignTable = array();
-        // TODO revise this to a recursive function
-        foreach($condition['foreign_table'] as $foreignTable => $foreignCondition){
-          $this->model = $this->model->whereHas($foreignTable, function($q) use($foreignCondition, $foreignTable){
-            $tempForeignTablePlural = str_plural($foreignTable);
-            for($x = 0; $x < count($foreignCondition); $x++){ // loop each
-              $column = explode('.', $foreignCondition[$x]['column']);
-              $value = $foreignCondition[$x]['value'];
-              $clause = isset($foreignCondition[$x]['clause']) ? $foreignCondition[$x]['clause'] : '=';
-
-              if(count($column) <= 2){ // level 1 relation
-                $q->where($column[1], $clause, $value);
-              }else{ // level 2 relation. maybe more
-                $column2 = $column[2];
-                $q->whereHas($column[1], function($q2) use($column2, $clause, $value){
-                  $q2->where($column2, $clause, $value);
-                });
-              }
-            }
-          });
+      if($this->requiredForeignTable){
+        $this->model = $this->model->with($this->requiredForeignTable);
+        for($x = 0; $x < count($this->requiredForeignTable); $x++){
+          $singularForeignTable = str_singular($this->requiredForeignTable[$x]);
+          $pluralForeignTable = str_plural($this->requiredForeignTable[$x]);
+          $this->model = $this->model->leftJoin($pluralForeignTable, $pluralForeignTable.'.id', '=', $tableName.'.'.$singularForeignTable.'_id');
         }
       }
       if(isset($request['with_foreign_table'])){
-          $this->model = $this->model->with($request['with_foreign_table']);
-      }
-      if(count($condition['main_table'])){
-        $this->addCondition($condition['main_table']);
+        $foreignTable = array();
+        foreach($request['with_foreign_table'] as $tempForeignTable){
+          if(in_array($tempForeignTable, $this->foreignTable)){
+            $foreignTable[] = $tempForeignTable;
+          }
+        }
+        if(count($foreignTable)){
+          $this->model = $this->model->with($foreignTable);
+        }
       }
       if(isset($request["id"])){
          $this->model = $this->model->where($tableName.".id", "=", $request["id"]);
       }else{
+        (isset($request['condition'])) ? $this->addCondition($request['condition']) : null;
         (isset($request['sort'])) ? $this->addOrderBy($request['sort']) : null;
-        if(isset($request['limit'])){
-          $this->response['total_entries'] = $this->model->count();
-          $this->model = $this->model->limit($request['limit']);
-        }
-        (isset($request['offset'])) ?  $this->model = $this->model->offset($request['offset'] * 1) : null;
-
+        (isset($request['offset'])) ? $this->model->offset($request['offset']) : null;
+        (isset($request['limit'])) ? $this->model = $this->model->limit($request['limit']) : null;
       }
       if(isset($request['with_soft_delete'])){
         $this->model = $this->model->withTrashed();
       }
-
       for($x = 0; $x < count($tableColumns); $x++){
         $tableColumns[$x] = $tableName.'.'.$tableColumns[$x];
       }
-
-      $result = $this->model->get($tableColumns)->toArray();
-      if(count($result)){
-        $this->response["data"] = $result;
+      $result = $this->model->get($tableColumns);
+      if($result){
+        $this->response["data"] = $result->toArray();
         if(isset($request["id"])){
           $this->response["data"] = $this->response["data"][0];
         }
@@ -391,17 +415,46 @@ class APIController extends Controller
         ];
       }
       return $result;
+  }
+
+  public function addCondition($conditions){
+    /*
+      column, clause, value
+    */
+    if($conditions){
+      foreach($conditions as $condition){
+        /*Table.Column, Clause, Value*/
+        $condition["clause"] = (isset($condition["clause"])) ? $condition["clause"] : "=";
+        $condition["value"] = (isset($condition["value"])) ? $condition["value"] : null;
+        switch($condition["clause"]){
+          default :
+            $this->model = $this->model->where($condition["column"], $condition["clause"], $condition["value"]);
+        }
+      }
     }
-    public function updateEntry($request, $noFile = false){
-      $responseType = isset($request['response_type']) ? $request['response_type'] : 'json';
+  }
+  public function addOrderBy($sort)
+  {
+    foreach($sort as $column => $order){
+      $this->model = $this->model->orderBy($column, $order);
+    }
+  }
+
+
+
+  public function updateDB($request, $noFile = false)
+  {
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
+    }
+    $responseType = isset($request['response_type']) ? $request['response_type'] : 'json';
       $tableColumns = $this->model->getTableColumns();
       $this->tableColumns = $tableColumns;
-      $request = $this->filterRequest($request);
       $tableColumns = $this->model->getTableColumns();
 
       $this->tableColumns = $tableColumns;
       if(!$this->isValid($request, "update")){
-        return $this->output();
+        return $this->response();
       }
       $this->model = $this->model->find($request["id"]);
       foreach($this->tableColumns as $columnName){
@@ -415,15 +468,15 @@ class APIController extends Controller
       $result = $this->model->save();
       if($result && count($this->singleImageFileUpload) && !$noFile){
         $id = $this->model->id;
-        for($x = 0; $x < count($this->singleImageFileUpload); $x++){
-          $this->uploadSingleImageFile(
-            $id,
-            $this->singleImageFileUpload[$x]['name'],
-            $this->singleImageFileUpload[$x]['path'],
-            $this->singleImageFileUpload[$x]['column'],
-            $this->singleImageFileUpload[$x]['replace']
-          );
-        }
+        // for($x = 0; $x < count($this->singleImageFileUpload); $x++){
+        //   $this->uploadSingleImageFile(
+        //     $id,
+        //     $this->singleImageFileUpload[$x]['name'],
+        //     $this->singleImageFileUpload[$x]['path'],
+        //     $this->singleImageFileUpload[$x]['column'],
+        //     $this->singleImageFileUpload[$x]['replace']
+        //   );
+        // }
       }
       if($result && $this->editableForeignTable){
         $childID = array();
@@ -502,83 +555,69 @@ class APIController extends Controller
           $this->response["error"] = "Failed to update entry";
         }
       }
+  }
+
+  public function deleteDB($request)
+  {
+    if($this->checkAuthenticatedUser() == false){
+      return $this->response();
     }
-    public function deleteEntry($request){
-      $responseType = isset($request['response_type']) ? $request['response_type'] : 'json';
-      $validator = Validator::make($request, ["id" => "required"]);
-      if ($validator->fails()) {
-        $this->response["error"]["status"] = 101;
-        $this->response["error"]["message"] = $validator->errors()->toArray();
-        return false;
+    $responseType = isset($request['response_type']) ? $request['response_type'] : 'json';
+    $validator = Validator::make($request, ["id" => "required"]);
+    if ($validator->fails()) {
+      $this->response["error"]["status"] = 101;
+      $this->response["error"]["message"] = $validator->errors()->toArray();
+      return false;
+    }
+    $this->response["data"] = $this->model->destroy($request["id"]);
+  }
+
+  public function retrieveAccountDetails($accountId){
+    $result = app('Increment\Account\Http\AccountController')->retrieveById($accountId);
+    if(sizeof($result) > 0){
+      $result[0]['profile'] =  app('Increment\Account\Http\AccountProfileController')->getAccountProfile($accountId);
+      $result[0]['information'] = app('Increment\Account\Http\AccountInformationController')->getAccountInformation($accountId);
+      $result[0]['billing'] = app('Increment\Account\Http\BillingInformationController')->getBillingInformation($accountId);
+      return $result[0];
+    }else{
+      return null;
+    }
+  }
+
+  public function retrieveNameOnly($accountId){
+    $result = app('Increment\Account\Http\AccountController')->retrieveById($accountId);
+    if(sizeof($result) > 0){
+      $result[0]['information'] = app('Increment\Account\Http\AccountInformationController')->getAccountInformation($accountId);
+      $name = null;
+      if($result[0]['information'] != null && $result[0]['information']['first_name'] !== null && $result[0]['information']['last_name'] != null){
+        $name = $result[0]['information']['first_name'].' '.$result[0]['information']['last_name'];
+        return $name;
       }
-      $this->response["data"] = $this->model->destroy($request["id"]);
+      return $result[0]['username'];
+    }else{
+      return null;
     }
-    public function addCondition($conditions){
-      /*
-        column, clause, value
-      */
-      if($conditions){
-        foreach($conditions as $condition){
-          /*Table.Column, Clause, Value*/
-          $condition["clause"] = (isset($condition["clause"])) ? $condition["clause"] : "=";
-          $condition["value"] = (isset($condition["value"])) ? $condition["value"] : null;
-          switch($condition["clause"]){
-            default :
-              $this->model = $this->model->where($condition["column"], $condition["clause"], $condition["value"]);
-          }
-        }
-      }
+  }
+
+  public function retrieveAppDetails($result, $accountId){
+    return $result;
+  }
+
+  public function retrieveDetailsOnLogin($result){
+    $accountId = $result['id'];
+    $result['account_information_flag'] = false;
+    $result['account_profile_flag'] = false;
+    $result['account_information'] = app('Increment\Account\Http\AccountInformationController')->getAccountInformation($accountId);
+    $result['account_profile'] = app('Increment\Account\Http\AccountProfileController')->getAccountProfile($accountId);
+    $result['notification_settings'] = app('App\Http\Controllers\NotificationSettingController')->getNotificationSettings($accountId);
+    $result['sub_account'] = app('Increment\Account\Http\SubAccountController')->retrieveByParams('member', $accountId);
+    $result['cart'] = app('Increment\Imarket\Cart\Http\CartController')->retrieveByAccountId($accountId);
+
+    if($result['sub_account'] != null){
+      $admin = $result['sub_account']['account_id'];
+      $result['sub_account']['merchant'] = app('Increment\Imarket\Merchant\Http\MerchantController')->getByParams('account_id', $admin);
     }
-    public function addOrderBy($sort)
-    {
-      foreach($sort as $column => $order){
-        $this->model = $this->model->orderBy($column, $order);
-      }
-    }
-    public function getAuthenticatedUser()
-    {
-      try {
-        if (! $userRaw = JWTAuth::parseToken()->authenticate()) {
-          return response()->json(['user_not_found'], 404);
-        }
-      } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-        return response()->json(['token_expired'], $e->getStatusCode());
-      } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-        return response()->json(['token_invalid'], $e->getStatusCode());
-      } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
-        return response()->json(['token_absent'], $e->getStatusCode());
-      } catch(\Tymon\JWTAuth\Exceptions\JWTException $e){//general JWT exception
-        $this->response['debug'][] = 'No token parsed';
-        return false;
-      }
-      // the token is valid and we have found the user via the sub claim
-      $user = $userRaw->toArray();
-      $this->userSession = $user;
-      $this->userSession['company_id'] = NULL;
-      $this->userSession['company_branch_id'] = NULL;
-    }
-    public function getUserCompanyDetail(){
-      if(!$this->userSession){
-        $this->getAuthenticatedUser();
-      }
-      if(!$this->userSession['company_id'] && $this->userSession){
-        $company = (new CompanyBranchEmployee())->with(['company_branch'])->where('account_id', $this->userSession['id'])->get()->toArray();
-        $this->userSession['company_id'] = $company ? $company[0]['company_branch']['company_id'] : 0;
-        $this->userSession['company_branch_id'] = $company ? $company[0]['company_branch']['id'] : 0;
-      }
-    }
-    public function getUserCompanyID(){
-      $this->getUserCompanyDetail();
-      return $this->userSession['company_id'];
-    }
-    public function getUserCompanyBranchID(){
-      $this->getUserCompanyDetail();
-      return $this->userSession['company_branch_id'];
-    }
-    public function getUserID(){
-      if(!$this->userSession){
-        $this->getAuthenticatedUser();
-      }
-      return $this->userSession['id'];
-    }
+    return $result;
+  }
+
 }
