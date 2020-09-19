@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBotConfigurations extends Migration
+class CreatePageTemplates extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,15 @@ class CreateBotConfigurations extends Migration
      */
     public function up()
     {
-        Schema::create('bot_configurations', function (Blueprint $table) {
+        Schema::create('page_templates', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('account_id');
             $table->string('payload');
             $table->longText('payload_value');
             $table->string('page');
             $table->longText('token');
+            $table->bigInteger('template_id')->nullable();
+            $table->longText('content');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -32,6 +34,6 @@ class CreateBotConfigurations extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('logs');
+        Schema::dropIfExists('page_templates');
     }
 }
