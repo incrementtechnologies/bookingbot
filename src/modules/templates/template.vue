@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div style="padding-top: 2%; padding-bottom: 3%;" v-if="!viewDemo">
+        <div style="padding-top: 2%; padding-bottom: 3%;">
             <h5 class="txt_inline">Selected Page</h5>
             <img class="txt_inline imageStyle" :src="selectedImage">
             <h5 class="txt_inline">Go Commerce</h5>

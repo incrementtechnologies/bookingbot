@@ -12,7 +12,8 @@
 */
 
 Route::get('/', function () {
-    return "heel";//view('welcome');
+    // return "heel";//view('welcome');
+    return view('welcome');
 });
 /*
   Accessing uploaded files
@@ -84,9 +85,8 @@ Route::get('/migrate', function () {
     //
 });
 
-
-/*
-  @Bot Routes
+/*sa
+  @Bot Routessa
 */
 Route::get("/bot/hook","IlinyaController@hook")->middleware("verify");
 Route::post("/bot/hook","IlinyaController@hook");
@@ -98,20 +98,35 @@ Route::get("/bot/reminder/{recipientId}/{message}/{surveyMode}","IlinyaControlle
 Route::get("/bot/image","IlinyaController@createImage");
 Route::get("/bot/test/{size}","IlinyaController@test");
 
-$route = env('PACKAGE_ROUTE', '').'/botConfiguration';
-Route::post($route.'/create', "BotConfigurationController@create");
-Route::post($route.'/retrieve', "BotConfigurationController@retrieve");
-Route::post($route.'/update', "BotConfigurationController@update");
-Route::post($route.'/delete', "BotConfigurationController@delete");
+$route = env('PACKAGE_ROUTE', '').'/authenticate';
+Route::resource($route, 'AuthenticateController', ['only' => ['index']]);
+Route::post($route, 'AuthenticateController@authenticate');
+Route::post($route.'/user', 'AuthenticateController@getAuthenticatedUser');
+Route::post($route.'/refresh', 'AuthenticateController@refreshToken');
+Route::post($route.'/invalidate', 'AuthenticateController@deauthenticate');
+Route::post($route.'/auth', function () {
+    return true;
+});
 
-$route = env('PACKAGE_ROUTE', '').'/botTemplate';
+$route = env('PACKAsaGE_ROUTE', '').'/page_template';
+Route::post($route.'/create', "PageTemplateController@create");
+Route::post($route.'/retrieve', "PageTemplateController@retrieve");
+Route::post($route.'/update', "PageTemplateController@update");
+Route::post($route.'/delete', "PageTemplateController@delete");
+
+$route = env('PACKAGE_ROUTE', '').'/bot_ template';
 Route::post($route.'/create', "BotTemplateController@create");
 Route::post($route.'/retrieve', "BotTemplateController@retrieve");
 Route::post($route.'/update', "BotTemplateController@update");
 Route::post($route.'/delete', "BotTemplateController@delete");
+<<<<<<< HEAD
+/**sa
+ * @Webview Routessa
+=======
 
 /**
  * @Webview Routes
+>>>>>>> 7c00ecbff5c3ce4280d977386026f9eef781aecd
  */
 
  Route::get("/webview/packages" ,"WebViewController@packageForm");
