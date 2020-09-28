@@ -12,7 +12,8 @@
 */
 
 Route::get('/', function () {
-    return "heel";//view('welcome');
+    // return "heel";//view('welcome');
+    return view('welcome');
 });
 /*
   Accessing uploaded files
