@@ -119,18 +119,10 @@ Route::post($route.'/create', "BotTemplateController@create");
 Route::post($route.'/retrieve', "BotTemplateController@retrieve");
 Route::post($route.'/update', "BotTemplateController@update");
 Route::post($route.'/delete', "BotTemplateController@delete");
-<<<<<<< HEAD
-/**sa
- * @Webview Routessa
-=======
 
 /**
  * @Webview Routes
->>>>>>> 7c00ecbff5c3ce4280d977386026f9eef781aecd
  */
 
- Route::get("/webview/packages" ,"WebViewController@packageForm");
-
-Auth::routes();
-
+Route::get("/webview/packages" ,"WebViewController@packageForm");
 Route::get('/home', 'HomeController@index')->name('home');
