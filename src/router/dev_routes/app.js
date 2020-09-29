@@ -2,7 +2,7 @@ export default{
   routes: [{
     path: '/login',
     name: 'login',
-    component: resolve => require(['components/increment/basic/Login.vue'], resolve),
+    component: resolve => require(['components/increment/basic/LogIn.vue'], resolve),
     meta: {
       tokenRequired: false
     }
@@ -80,6 +80,13 @@ export default{
     path: '/accounts',
     name: 'accounts',
     component: resolve => require(['modules/admin/Accounts.vue'], resolve),
+    meta: {
+      tokenRequired: true
+    }
+  }, {
+    path: '/setting',
+    name: 'setting',
+    component: resolve => require(['modules/Facebook/Setting.vue'], resolve),
     meta: {
       tokenRequired: true
     }
