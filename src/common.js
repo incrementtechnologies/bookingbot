@@ -33,13 +33,13 @@ export default {
     icon: 'fa fa-shopping-bag',
     route: '/orders'
   }],
-  APP_NAME: 'RunwayExpress',
-  APP_NAME_HTML: 'Runway Express',
+  APP_NAME: 'BookingBot',
+  APP_NAME_HTML: 'BookingBot',
   APP_EMAIL: 'support@runwayexpress.com',
-  COMPANY: 'RunwayExpress',
+  COMPANY: 'BookingBot',
   COMPANY_URL: 'https://runwayexpress.com',
   APP_URL: 'https://runwayexpress.com',
-  COPYRIGHT: 'RunwayExpress ' + new Date().getFullYear(),
+  COPYRIGHT: 'BookingBot ' + new Date().getFullYear(),
   USER_TYPE: [{
     title: 'USER'
   }, {

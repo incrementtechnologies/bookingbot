@@ -8,3 +8,7 @@ node_modules/
 src/config.js
 dist/
 rx_build/
+api/vendor/
+api/storage/
+api/packages/
+api/.env
