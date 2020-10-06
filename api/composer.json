@@ -38,7 +38,16 @@
         ],
         "psr-4": {
             "App\\": "app/",
-            "Increment\\Account\\": "packages/increment/account/src/"
+            "Increment\\Account\\": "packages/increment/account/src/",
+            "Increment\\Common\\Comment\\": "packages/increment/common/comment/src/",
+            "Increment\\Common\\Rating\\": "packages/increment/common/rating/src/",
+            "Increment\\Common\\Image\\": "packages/increment/common/image/src/",
+            "Increment\\Common\\Invitation\\": "packages/increment/common/invitation/src/",
+            "Increment\\Common\\Tutorial\\": "packages/increment/common/tutorial/src/",
+            "Increment\\Common\\System\\": "packages/increment/common/system/src/",
+            "Increment\\Common\\Scope\\": "packages/increment/common/scope/src/",
+            "Increment\\Common\\Payload\\": "packages/increment/common/payload/src/",
+            "Increment\\Common\\Notification\\": "packages/increment/common/notification/src/"
         }
     },
     "autoload-dev": {

@@ -170,6 +170,8 @@ return [
 
         */
         Increment\Account\AccountServiceProvider::class,
+        Increment\Common\Image\ImageServiceProvider::class,
+        Increment\Common\Invitation\InvitationServiceProvider::class,
 
         /*
          * Package Service Providers...
