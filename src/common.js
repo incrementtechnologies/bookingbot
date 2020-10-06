@@ -53,11 +53,8 @@ export default {
   header: ['status', 'notification'], // 'messenger', '',
   settingsMenu: [
     {title: 'Profile', hideFrom: ['MERCHANT'], type: 'profile', allowed: ['cellular_number', 'address', 'sex', 'birth_date']},
-    {title: 'Business Information', hideFrom: ['USER', 'RIDER'], type: 'merchant', allowed: ['email', 'prefix', 'website']},
     {title: 'Notifications', hideFrom: [], type: 'notification', allowed: []},
-    {title: 'Business Locations', hideFrom: ['USER', 'RIDER'], type: 'merchant_locations', allowed: []},
-    {title: 'Account', hideFrom: [], type: 'account', allowed: []},
-    {title: 'Billing Information', hideFrom: [], type: 'billing_information'}
+    {title: 'Account', hideFrom: [], type: 'account', allowed: []}
   ],
   notificationSeting: [{
     title: 'OTP',

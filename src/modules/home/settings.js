@@ -1,11 +1,11 @@
 export default {
   page: [{
-    title: 'Runway Express',
-    subtitle: 'Delivering food to your home!',
-    description: 'This is a test here!',
+    title: 'BookingBot',
+    subtitle: 'Transforming your messenger bot in a more effective and efficient to your customers.',
+    description: 'Connect your facebook page and manage the orders, sales, and inquiries of your business.',
     image: null,
     template: 'right',
-    background: '#ff5B04',
+    background: '#00c2e0',
     textColor: 'text-white'
   }]
 }
