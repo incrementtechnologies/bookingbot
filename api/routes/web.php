@@ -88,15 +88,17 @@ Route::get('/migrate', function () {
 /*sa
   @Bot Routessa
 */
-Route::get("/bot/hook","IlinyaController@hook")->middleware("verify");
-Route::post("/bot/hook","IlinyaController@hook");
-Route::post("/bot/persistent","IlinyaController@persistent");
-Route::post("/bot/get_started","IlinyaController@getStarted");
-Route::get("/bot/broadcast/{message}","IlinyaController@broadcast");
-Route::get("/bot/paging/{recipientId}/{message}/{surveyMode}","IlinyaController@paging");
-Route::get("/bot/reminder/{recipientId}/{message}/{surveyMode}","IlinyaController@reminder");
-Route::get("/bot/image","IlinyaController@createImage");
-Route::get("/bot/test/{size}","IlinyaController@test");
+
+$route = env('PACKAGE_ROUTE', '').'/bot';
+Route::get($route."/hook","IlinyaController@hook")->middleware("verify");
+Route::post($route."/hook","IlinyaController@hook");
+Route::post($route."/persistent","IlinyaController@persistent");
+Route::post($route."/get_started","IlinyaController@getStarted");
+Route::get($route."/broadcast/{message}","IlinyaController@broadcast");
+Route::get($route."/paging/{recipientId}/{message}/{surveyMode}","IlinyaController@paging");
+Route::get($route."/reminder/{recipientId}/{message}/{surveyMode}","IlinyaController@reminder");
+Route::get($route."/image","IlinyaController@createImage");
+Route::get($route."/test/{size}","IlinyaController@test");
 
 $route = env('PACKAGE_ROUTE', '').'/authenticate';
 Route::resource($route, 'AuthenticateController', ['only' => ['index']]);
@@ -109,6 +111,31 @@ Route::post($route.'/auth', function () {
 });
 
 $route = env('PACKAGE_ROUTE', '').'/page_template';
+//Emails Controller
+$route = env('PACKAGE_ROUTE', '').'/emails';
+Route::post($route.'/create', "EmailController@create");
+Route::post($route.'/retrieve', "EmailController@retrieve");
+Route::post($route.'/update', "EmailController@update");
+Route::post($route.'/delete', "EmailController@delete");
+Route::post($route.'/reset_password', 'EmailController@resetPassword');
+Route::post($route.'/verification', 'EmailController@verification');
+Route::post($route.'/changed_password', 'EmailController@changedPassword');
+Route::post($route.'/referral', 'EmailController@referral');
+Route::post($route.'/trial', 'EmailController@trial');
+Route::post($route.'/test_sms', 'EmailController@testSMS');
+
+//Notification Settings Controller
+$route = env('PACKAGE_ROUTE', '').'/notification_settings/';
+$controller = 'NotificationSettingController@';
+Route::post($route.'create', $controller."create");
+Route::post($route.'retrieve', $controller."retrieve");
+Route::post($route.'update_otp', $controller."generateOTP");
+Route::post($route.'block_account', $controller."blockedAccount");
+Route::post($route.'update', $controller."update");
+Route::post($route.'delete', $controller."delete");
+Route::get($route.'test', $controller.'test');
+
+$route = env('PACKAsaGE_ROUTE', '').'/page_template';
 Route::post($route.'/create', "PageTemplateController@create");
 Route::post($route.'/retrieve', "PageTemplateController@retrieve");
 Route::post($route.'/update', "PageTemplateController@update");
