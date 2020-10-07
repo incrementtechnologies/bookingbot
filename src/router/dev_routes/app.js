@@ -98,6 +98,14 @@ export default{
     meta: {
       tokenRequired: false
     }
+  },
+  {
+    path: '/bot_editor',
+    name: 'botEditor',
+    component: resolve => require(['modules/BotEditor/botEditor.vue'], resolve),
+    meta: {
+      tokenRequired: true
+    }
   }
   ]
 }

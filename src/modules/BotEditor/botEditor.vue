@@ -3,7 +3,7 @@
         <div class="bootEditorActionGroup">
             <button type="button" class="btn bootEditorActions"> settings </button>
             <button type="button" class="btn bootEditorActions"> preview </button>
-            <button type="button" class="btn bootEditorSave"> save </button>
+            <button type="button" class="btn bootEditorSave" @click="save"> save </button>
         </div>
         <div class="dropZone" v-for="(item, index) in returnResponse" :key="index" @drop="drop($event, index)" @dragover.prevent @dragenter.prevent>
             <div class="draggable" draggable @dragstart="drag($event, index)">
@@ -112,7 +112,7 @@
                             <div class="productsBody">
                                 <div style="width: 180px; margin-right: 15px;" v-for="(data, data_index) in item.data.reply" :key="data_index">
                                     <center>
-                                        <div class="productsElement productsAddImage" :style="'background-image: url(' + data.image + ');background-size: 180px 140px !important;'">
+                                      <div class="productsElement productsAddImage" :style="'background-image: url(' + readImage(data.image) + ');background-size: 180px 140px !important;'">
                                             <i class="fas fa-plus" @click="imageUpload('image' + String(index) + String(data_index))"></i>
                                             <input :ref="'image' + String(index) + String(data_index)" type="file" accept="image/*" name="image_src" id="image_src" @change="uploaded($event, index, data_index)"/>
                                         </div>
@@ -273,9 +273,9 @@
 </template>
 
 <script>
-/**
-    image upload is converted to base-64 just for display, during api request which is on SAVE change the imaage property of the products to event.target.files in the uploaded method
- */
+import axios from 'axios'
+import CONFIG from 'src/config.js'
+import AUTH from 'src/services/auth'
 export default {
   data () {
     return {
@@ -332,12 +332,17 @@ export default {
       buttonName: '',
       buttonAction: '',
       bgImage: '',
-      alertMessage: ''
+      alertMessage: '',
+      BACKEND_URL: CONFIG.BACKEND_URL,
+      user: AUTH.user,
+      modalShow: false,
+      Data: new FormData()
     }
   },
-  created () {
-    window.addEventListener('scroll', this.handleScroll)
+  mounted () {
+    this.retrieve()
   },
+  components: {},
   computed: {
     scrollPosition(){
       return this.top
@@ -350,6 +355,9 @@ export default {
     },
     returnAlert () {
       return this.alertMessage
+    },
+    hideModal() {
+      return this.browseModal
     }
   },
   methods: {
@@ -530,18 +538,51 @@ export default {
         this.popState = !this.popState
       }
     },
+    apiRequest(url, data){
+      let config = {
+        header: {
+          'Content-Type': 'application/json'
+        }
+      }
+      let api = axios
+      return new Promise((resolve, reject) => {
+        api.post(CONFIG.BACKEND_URL + url, data, config).then(response => {
+          resolve(response)
+        })
+      })
+    },
+    formRequest(url, data){
+      let config = {
+        header: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
+      let api = axios
+      return new Promise((resolve, reject) => {
+        api.post(CONFIG.BACKEND_URL + url, data, config).then(response => {
+          resolve(response)
+        })
+      })
+    },
+    readImage(image){
+      return (image.includes('.')) ? CONFIG.BACKEND_URL + image : ''
+    },
     imageUpload(image){
       this.$refs[image][0].click()
     },
     uploaded(event, index, dataIndex){
-      console.log(event.target.files[0])
       if (event.target.files && event.target.files[0]) {
         var reader = new FileReader()
         let dom = this
         let i = index
         let dI = dataIndex
+        let time = Date.now()
+        let form = new FormData()
+        form.append('accountID', this.user.userID)
+        this.Data.append(String(this.user.userID) + time, event.target.files[0])
+        this.response[i].data.reply[dI].image = String(this.user.userID) + time
         reader.onload = function(e) {
-          dom.response[i].data.reply[dI].image = e.target.result
+          event.target.parentNode.style = 'background-image: url(' + e.target.result + ') !important;background-size: 180px 140px !important;'
         }
         reader.readAsDataURL(event.target.files[0]) // convert to base64 string
       }
@@ -557,10 +598,29 @@ export default {
         a.parentNode.children[1].style = 'display: flex;'
         event.target.className = 'fas fa-chevron-up'
       }
+    },
+    retrieve(){
+      let parameters = {
+        accountID: this.user.userID
+      }
+      this.apiRequest('/bot_template/retrieve_content', JSON.stringify(parameters)).then(response => {
+        if(response.data.length > 0){
+          let parse = JSON.parse(response.data[0].content)
+          this.response = parse.data
+        }
+      })
+    },
+    async save (e) {
+      e.preventDefault()
+      this.Data.append('accountID', this.user.userID)
+      this.Data.append('content', JSON.stringify({data: this.response}))
+      await this.formRequest('/bot_template/save', this.Data).then(response => {
+        console.log(response.data)
+      })
+    },
+    url(directory){
+      return (directory === '') ? '' : this.BACKEND_URL
     }
-  },
-  destroyed () {
-    window.removeEventListener('scroll', this.handleScroll)
   }
 }
 </script>

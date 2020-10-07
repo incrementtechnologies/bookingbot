@@ -108,21 +108,41 @@ Route::post($route.'/auth', function () {
     return true;
 });
 
-$route = env('PACKAsaGE_ROUTE', '').'/page_template';
+$route = env('PACKAGE_ROUTE', '').'/page_template';
 Route::post($route.'/create', "PageTemplateController@create");
 Route::post($route.'/retrieve', "PageTemplateController@retrieve");
 Route::post($route.'/update', "PageTemplateController@update");
 Route::post($route.'/delete', "PageTemplateController@delete");
 
-$route = env('PACKAGE_ROUTE', '').'/bot_ template';
+$route = env('PACKAGE_ROUTE', '').'/bot_template';
 Route::post($route.'/create', "BotTemplateController@create");
 Route::post($route.'/retrieve', "BotTemplateController@retrieve");
 Route::post($route.'/update', "BotTemplateController@update");
 Route::post($route.'/delete', "BotTemplateController@delete");
-
+Route::post($route.'/save', "BotTemplateController@save");
+Route::post($route.'/retrieve_content', "BotTemplateController@retrieve_content");
 /**
  * @Webview Routes
  */
 
 Route::get("/webview/packages" ,"WebViewController@packageForm");
 Route::get('/home', 'HomeController@index')->name('home');
+
+
+$image_route = env('PACKAGE_ROUTE', '');
+Route::get($image_route.'/storage/image/{filename}', function ($filename)
+{
+    $path = storage_path('/app/images/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
