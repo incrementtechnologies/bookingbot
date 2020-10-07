@@ -11,15 +11,6 @@ class BotTemplateController extends APIController
     function __construct(){
         $this->model = new Template();
     }
-
-    public function retrieve_content(Request $request){
-        $req = json_decode($request->getContent());
-        $res = Template::select('content')
-        ->where('account_id', $req->account_id)
-        ->get();
-        $res = json_decode($res);
-        return response()->json($res);
-    }
     public function save(Request $request) {
         $req = json_decode($request['content']);
         $image = '';
@@ -33,7 +24,7 @@ class BotTemplateController extends APIController
                         $name = time().'.'.$file->getClientOriginalExtension();
                         $fileUrl = str_replace(' ', '_', $file->getClientOriginalName());
                         $fileUrl = str_replace('%20', '_', $fileUrl);
-                        $filename = $request->account_id.'_'.$date.'_'.$time.'_'.$fileUrl;
+                        $filename = $request->accountID.'_'.$date.'_'.$time.'_'.$fileUrl;
                         $file->storeAs('images', $filename);
                         $url = '/storage/image/'.$filename;
                         $image = $url;
@@ -47,9 +38,9 @@ class BotTemplateController extends APIController
             //     ['account_id' => $request->accountID, 'code' => $this->generateCode(), 'title' => 'template', 'description' => 'template', 'demo_url' => 'initial', "content" => $request->content]
             // );
             // return response()->json(['test'=>$req]);
-            $test = Template::firstOrNew(['account_id' => $request->account_id]);
+            $test = Template::firstOrNew(['account_id' => $request->accountID]);
             $test->fill([
-                'account_id' => $request->account_id,
+                'account_id' => $request->accountID,
                 'code' => $this->generateCode(),
                 'title' => 'template',
                 'description' => 'template',

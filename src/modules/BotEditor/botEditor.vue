@@ -601,18 +601,18 @@ export default {
     },
     retrieve(){
       let parameters = {
-        account_id: this.user.userID
+        accountID: this.user.userID
       }
-      this.apiRequest('/bot_template/retrieve_content', JSON.stringify(parameters)).then(response => {
-        if(response.data.length > 0){
-          let parse = JSON.parse(response.data[0].content)
+      this.apiRequest('/bot_template/retrieve', parameters).then(response => {
+        if(response.data.data.length > 0){
+          let parse = JSON.parse(response.data.data[0].content)
           this.response = parse.data
         }
       })
     },
     async save (e) {
       e.preventDefault()
-      this.Data.append('account_id', this.user.userID)
+      this.Data.append('accountID', this.user.userID)
       this.Data.append('content', JSON.stringify({data: this.response}))
       await this.formRequest('/bot_template/save', this.Data).then(response => {
         console.log(response.data)
