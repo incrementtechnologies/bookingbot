@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid">
+    <div class="container-fluid editor_container">
         <div class="bootEditorActionGroup">
             <button type="button" class="btn bootEditorActions"> settings </button>
             <button type="button" class="btn bootEditorActions"> preview </button>
@@ -601,7 +601,7 @@ export default {
     },
     retrieve(){
       let parameters = {
-        accountID: this.user.userID
+        account_id: this.user.userID
       }
       this.apiRequest('/bot_template/retrieve_content', JSON.stringify(parameters)).then(response => {
         if(response.data.length > 0){
@@ -612,7 +612,7 @@ export default {
     },
     async save (e) {
       e.preventDefault()
-      this.Data.append('accountID', this.user.userID)
+      this.Data.append('account_id', this.user.userID)
       this.Data.append('content', JSON.stringify({data: this.response}))
       await this.formRequest('/bot_template/save', this.Data).then(response => {
         console.log(response.data)
@@ -626,6 +626,10 @@ export default {
 </script>
 
 <style scoped>
+.editor_container{
+    padding-left: 20%;
+    padding-right: 20%;
+}
 .modalTrigger{
     display: none;
 }
@@ -868,6 +872,12 @@ export default {
 	background-color: #00C2E0;
 	border: 0px;
     border-radius: 10px;
+}
+@media (max-width: 600px) {
+    .editor_container{
+        padding-left: 0px;
+        padding-right: 0px;
+    }
 }
 </style>
 

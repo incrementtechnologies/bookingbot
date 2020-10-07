@@ -1,15 +1,11 @@
 export default {
   sidebarMenu: [
-<<<<<<< HEAD
     {accountType: 'MERCHANT', accountStatus: 'ALL', showOnAdmin: false, description: 'Dashboard', icon: 'fa fa-tachometer-alt', path: 'dashboard', flag: false, subMenu: null},
     {accountType: 'RIDER', accountStatus: 'ALL', showOnAdmin: true, description: 'Dashboard', icon: 'fa fa-tachometer-alt', path: 'dashboard', flag: false, subMenu: null},
     {accountType: 'ALL', accountStatus: 'ALL', showOnAdmin: true, description: 'Featured', icon: 'fa fa-tachometer-alt', path: 'featured', flag: false, subMenu: null},
     {accountType: 'ALL', accountStatus: 'ALL', showOnAdmin: true, description: 'Marketplace', icon: 'fa fa-tachometer-alt', path: 'marketplace', flag: false, subMenu: null},
     {accountType: 'ALL', accountStatus: 'ALL', showOnAdmin: true, description: 'Bot Editor', icon: 'fas fa-cogs', path: 'bot_editor', flag: false, subMenu: null},
     // {accountType: 'MERCHANT', accountStatus: 'ALL', showOnAdmin: true, description: 'My Product', icon: 'fa fa-tachometer-alt', path: 'products', flag: false, subMenu: null},
-=======
-    {accountType: 'ALL', accountStatus: 'ALL', showOnAdmin: false, description: 'Dashboard', icon: 'fa fa-tachometer-alt', path: 'dashboard', flag: false, subMenu: null},
->>>>>>> 3ea4fdfb0ce12301107d195c3437cae8c1946dd0
     {accountType: 'ADMIN', accountStatus: 'ALL', showOnAdmin: true, description: 'Account', icon: 'fa fa-tachometer-alt', path: 'accounts', flag: false, subMenu: null}
   ],
   profileMenu: [{
