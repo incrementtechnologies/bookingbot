@@ -601,7 +601,7 @@ export default {
     },
     retrieve(){
       let parameters = {
-        accountID: this.user.userID
+        account_id: this.user.userID
       }
       this.apiRequest('/bot_template/retrieve', parameters).then(response => {
         if(response.data.data.length > 0){
@@ -612,7 +612,7 @@ export default {
     },
     async save (e) {
       e.preventDefault()
-      this.Data.append('accountID', this.user.userID)
+      this.Data.append('account_id', this.user.userID)
       this.Data.append('content', JSON.stringify({data: this.response}))
       await this.formRequest('/bot_template/save', this.Data).then(response => {
         console.log(response.data)
