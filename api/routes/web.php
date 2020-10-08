@@ -110,6 +110,7 @@ Route::post($route.'/auth', function () {
     return true;
 });
 
+$route = env('PACKAGE_ROUTE', '').'/page_template';
 //Emails Controller
 $route = env('PACKAGE_ROUTE', '').'/emails';
 Route::post($route.'/create', "EmailController@create");
@@ -140,12 +141,12 @@ Route::post($route.'/retrieve', "PageTemplateController@retrieve");
 Route::post($route.'/update', "PageTemplateController@update");
 Route::post($route.'/delete', "PageTemplateController@delete");
 
-$route = env('PACKAGE_ROUTE', '').'/bot_ template';
+$route = env('PACKAGE_ROUTE', '').'/bot_template';
 Route::post($route.'/create', "BotTemplateController@create");
 Route::post($route.'/retrieve', "BotTemplateController@retrieve");
 Route::post($route.'/update', "BotTemplateController@update");
 Route::post($route.'/delete', "BotTemplateController@delete");
-
+Route::post($route.'/save', "BotTemplateController@save");
 /**
  * @Webview Routes
  */

@@ -98,7 +98,16 @@ export default{
     meta: {
       tokenRequired: false
     }
-  }, {
+  },
+  {
+    path: '/bot_editor',
+    name: 'botEditor',
+    component: resolve => require(['modules/BotEditor/botEditor.vue'], resolve),
+    meta: {
+      tokenRequired: true
+    }
+  },
+  {
     path: '/profile/:parameter?',
     name: 'profile',
     component: resolve => require(['components/increment/settings/UpdateBasic.vue'], resolve),
