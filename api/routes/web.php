@@ -153,22 +153,3 @@ Route::post($route.'/save', "BotTemplateController@save");
 
 Route::get("/webview/packages" ,"WebViewController@packageForm");
 Route::get('/home', 'HomeController@index')->name('home');
-
-
-$image_route = env('PACKAGE_ROUTE', '');
-Route::get($image_route.'/storage/image/{filename}', function ($filename)
-{
-    $path = storage_path('/app/images/' . $filename);
-
-    if (!File::exists($path)) {
-        abort(404);
-    }
-
-    $file = File::get($path);
-    $type = File::mimeType($path);
-
-    $response = Response::make($file, 200);
-    $response->header("Content-Type", $type);
-
-    return $response;
-});
