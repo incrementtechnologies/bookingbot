@@ -1,13 +1,13 @@
 <template>
     <div class="container-fluid editor_container">
         <div class="bootEditorActionGroup">
-            <button type="button" class="btn bootEditorActions"> settings </button>
-            <button type="button" class="btn bootEditorActions"> preview </button>
-            <button type="button" class="btn bootEditorSave" @click="save"> save </button>
+            <button type="button" class="btn bootEditorActions" @click="redirect('/setting')"> Settings </button>
+            <button type="button" class="btn bootEditorActions"> Preview </button>
+            <button type="button" class="btn bootEditorSave" @click="save"> Save </button>
         </div>
         <div class="dropZone" v-for="(item, index) in returnResponse" :key="index" @drop="drop($event, index)" @dragover.prevent @dragenter.prevent>
             <div class="draggable" draggable @dragstart="drag($event, index)">
-                <div class="col-md-12 card bootEditorCard" v-if="item.type === 'welcome'">
+                <div class="col-md-12 card bootEditorCard" v-if="item.type.toLowerCase() === 'welcome'">
                     <div class="card-body bootEditorBody">
                         <div class="d-flex justify-content-between">
                             <div>
@@ -41,7 +41,7 @@
                         <i class="far fa-trash-alt" @click="removeComponent($event, item.type, index)"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" @click="addComponent(item.type, index)"></i>
                     </div>
                 </div>
-                <div class="col-md-12 card bootEditorCard" v-if="item.type === 'information'">
+                <div class="col-md-12 card bootEditorCard" v-if="item.type.toLowerCase() === 'information'">
                     <div class="card-body bootEditorBody">
                         <div class="d-flex justify-content-between">
                             <div>
@@ -75,7 +75,7 @@
                         <i class="far fa-trash-alt" @click="removeComponent($event, item.type, index)"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" @click="addComponent(item.type, index)"></i>
                     </div>
                 </div>
-                <div class="col-md-12 card bootEditorCard" v-if="item.type === 'products'">
+                <div class="col-md-12 card bootEditorCard" v-if="item.type.toLowerCase() === 'products'">
                     <div class="card-body bootEditorBody">
                         <div class="d-flex justify-content-between">
                             <div>
@@ -145,7 +145,7 @@
                         <i class="far fa-trash-alt" @click="removeComponent($event, item.type, index)"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" @click="addComponent(item.type, index)"></i>
                     </div>
                 </div>
-                <div class="col-md-12 card bootEditorCard" v-if="item.type === 'redirects'">
+                <div class="col-md-12 card bootEditorCard" v-if="item.type.toLowerCase() === 'redirects'">
                     <div class="card-body bootEditorBody">
                         <div class="d-flex justify-content-between">
                             <div>
@@ -203,7 +203,7 @@
                         <i class="far fa-trash-alt" @click="removeComponent($event, item.type, index)"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" @click="addComponent(item.type, index)"></i>
                     </div>
                 </div>
-                <div class="col-md-12 card bootEditorCard" v-if="item.type === 'confirmation'">
+                <div class="col-md-12 card bootEditorCard" v-if="item.type.toLowerCase() === 'confirmation'">
                     <div class="card-body bootEditorBody">
                         <div class="d-flex justify-content-between">
                             <div>
@@ -231,6 +231,7 @@
                             <input type="text" class="form-control" placeholder="Getting Started, Hi, Hello ..." v-model="response[index].data.keywords"/>
                             <p>Reply</p>
                             <input type="text" class="form-control productsElement" placeholder="Are your sure?" v-model="response[index].data.reply"/>
+                             <button type="button" class="mb-4 mt-4 btn btn-info productsElement bootEditorButtonOutlined confirmationBTN confirmationAdd" @click="addReply(item.type, index, null, $event)"><i class="fas fa-plus-circle mr-1"></i> Add Button</button>
                             <div class="d-flex justify-content-end">
                                 <button 
                                 type="button" 
@@ -246,11 +247,67 @@
                                     <input type="text" class="form-control mb-2" placeholder="link" v-model="buttonAction"/>
                                     <button type="button" class="btn btn-info form-control" @click="setUpConfirmation(index, co_popIndex)"> setup </button> 
                                 </b-popover>
-                                <button type="button" class="btn btn-info productsElement bootEditorButtonOutlined confirmationBTN" @click="addReply(item.type, index, null, $event)">Add Button</button>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer bootEditorCardFooter">
+                        <i class="far fa-trash-alt" @click="removeComponent($event, item.type, index)"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" @click="addComponent(item.type, index)"></i>
+                    </div>
+                </div>
+                 <div class="col-md-12 card bootEditorCard" v-if="item.type.toLowerCase() === 'form'">
+                    <div class="card-body bootEditorBody">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <select class="type_select form-control" v-model="response[index].data.messageType">
+                                    <option v-for="mType in type" :key="mType">{{mType}}</option>
+                                </select>
+                                <span>
+                                <b>Form</b>
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <i class="fas fa-chevron-up" @click="hide()"></i>
+                                </div>
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <div class="index">
+                                    <b>{{index + 1}}</b>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hide_body pt-4">
+                            <p class="mb-1"> Keyword </p>
+                            <input type="text" class="form-control" placeholder="Keywords" v-model="response[index].data.keywords"/>
+                            <p class="mb-1 mt-2">Google Sheet ID:</p>
+                            <input type="text" class="form-control" placeholder="Sheet ID" v-model="response[index].data.sheet_id"/>
+                            <p class="mb-1 mt-2">Page Number:</p>
+                            <input type="number" class="form-control" placeholder="Page Number" v-model="response[index].data.page_number"/>
+                            <div class="mt-4">
+                            <button type="button" class="form-control btn bt-info bootEditorActions form_add" @click="addReply(item.type, index, null, $event)"> <i class="fas fa-plus-circle mr-1"></i> Add </button>
+                            </div>
+                            <div class="fieldContainer">
+                              <div class="fieldSubContainer mt-4 mt-1 mb-1 p-0" v-for="(form, form_index) in item.data.fields" :key="String(form) + form_index">
+                                <div class="form_field_wrapper">
+                                  <input type="text" class="form_field" placeholder="Question" v-model="response[index].data.fields[form_index].header"/>
+                                </div>
+                                <div class="ml-2 mr-2">
+                                  <i class="far fa-trash-alt text-danger" @click="removeField(index, 'fields', form_index)"></i>
+                                </div>
+                                <div class="p-2">
+                                  <i class="fas fa-cog" :id="'form_pop' + (String(form_index) + String(index))" @click="settings('form_pop' + (String(form_index) + String(index)), form)"></i>
+                                </div>
+                              </div>
+                              <b-popover ref="popover" v-for="(pops, form_popIndex) in item.data.fields" :key="form_popIndex + index" :target="'form_pop' + (String(form_popIndex) + String(index))" placement="right">
+                                    <b class="popOverLabel"> Type </b>
+                                    <input type="text" class="form-popover mb-2" placeholder="Field Type" v-model="formType"/>
+                                    <b class="popOverLabel"> Length </b>
+                                    <input type="number" class="form-popover mb-2" placeholder="Field Length" v-model="formLength"/>
+                                    <button type="button" class="btn btn-info form-control" @click="settingsSave(index, form_popIndex)"> setup </button>
+                                </b-popover>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-last bootEditorCardFooter">
                         <i class="far fa-trash-alt" @click="removeComponent($event, item.type, index)"></i>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-plus" @click="addComponent(item.type, index)"></i>
                     </div>
                 </div>
@@ -281,16 +338,17 @@ export default {
     return {
       top: 'top: 90px',
       type: [
-        'text',
-        'slider',
-        'sliderbuttons'
+        'Text',
+        'Slider',
+        'Sliderbuttons',
+        'Form'
       ],
       response: [
         {
           data: {
             keywords: '',
             reply: '',
-            messageType: 'text'
+            messageType: 'Text'
           },
           type: 'welcome'
         },
@@ -298,7 +356,7 @@ export default {
           data: {
             keywords: '',
             reply: '',
-            messageType: 'text'
+            messageType: 'Text'
           },
           type: 'information'
         },
@@ -306,7 +364,7 @@ export default {
           data: {
             keywords: '',
             reply: [],
-            messageType: 'slider'
+            messageType: 'Slider'
           },
           type: 'products'
         },
@@ -314,7 +372,7 @@ export default {
           data: {
             keywords: '',
             reply: [],
-            messageType: 'sliderbuttons'
+            messageType: 'Sliderbuttons'
           },
           type: 'redirects'
         },
@@ -323,14 +381,26 @@ export default {
             keywords: '',
             buttons: [],
             reply: '',
-            messageType: 'text'
+            messageType: 'Text'
           },
           type: 'confirmation'
+        },
+        {
+          data: {
+            keywords: '',
+            sheet_id: '',
+            page_number: '',
+            fields: [],
+            messageType: 'Form'
+          },
+          type: 'form'
         }
       ],
       popState: false,
       buttonName: '',
       buttonAction: '',
+      formType: '',
+      formLength: '',
       bgImage: '',
       alertMessage: '',
       BACKEND_URL: CONFIG.BACKEND_URL,
@@ -361,6 +431,9 @@ export default {
     }
   },
   methods: {
+    redirect(url) {
+      this.$router.push(url)
+    },
     drag: (evt, index) => {
       evt.dataTransfer.dropEffect = 'move'
       evt.dataTransfer.effectAllowed = 'move'
@@ -428,6 +501,14 @@ export default {
             this.alertMessage = 'Product Button exceeds the maximum number!'
           }
           break
+        case 'form':
+          let tempField = {
+            header: '',
+            type: '',
+            length: ''
+          }
+          this.response[index].data.fields.push(tempField)
+          break
       }
     },
     addComponent(type, index){
@@ -437,7 +518,7 @@ export default {
             data: {
               keywords: '',
               reply: '',
-              messageType: 'message'
+              messageType: 'Text'
             },
             type: type
           }
@@ -448,7 +529,7 @@ export default {
             data: {
               keywords: '',
               reply: '',
-              messageType: 'message'
+              messageType: 'Text'
             },
             type: type
           }
@@ -459,7 +540,7 @@ export default {
             data: {
               keywords: '',
               reply: [],
-              messageType: 'slider'
+              messageType: 'Slider'
             },
             type: type
           }
@@ -470,7 +551,7 @@ export default {
             data: {
               keywords: '',
               reply: [],
-              messageType: 'sliderbuttons'
+              messageType: 'SliderButtons'
             },
             type: type
           }
@@ -482,13 +563,29 @@ export default {
               keywords: '',
               reply: '',
               buttons: [],
-              messageType: 'message'
+              messageType: 'Text'
             },
             type: type
           }
           this.response.splice(index + 1, 0, tempConfirmation)
           break
+        case 'form':
+          let tempForm = {
+            data: {
+              keywords: '',
+              sheet_id: '',
+              page_number: '',
+              fields: [],
+              messageType: 'Form'
+            },
+            type: type
+          }
+          this.response.splice(index + 1, 0, tempForm)
+          break
       }
+    },
+    removeField(index, property, propIndex){
+      this.response[index].data[property].splice(propIndex, 1)
     },
     removeComponent(event, type, index){
       let x = 0
@@ -537,6 +634,25 @@ export default {
         this.$root.$emit('bv::show::popover', id)
         this.popState = !this.popState
       }
+    },
+    settings(id, form){
+      this.formType = form.type
+      this.formLength = form.length
+      if(this.popState){
+        this.$root.$emit('bv::hide::popover')
+        this.popState = !this.popState
+      }
+      if(this.popState === false){
+        this.$root.$emit('bv::show::popover', id)
+        this.popState = !this.popState
+      }
+    },
+    settingsSave(index, Sindex){
+      this.$root.$emit('bv::hide::popover')
+      this.response[index].data.fields[Sindex].type = this.formType
+      this.response[index].data.fields[Sindex].length = this.formLength
+      this.formType = ''
+      this.formLength = ''
     },
     apiRequest(url, data){
       let config = {
@@ -603,7 +719,9 @@ export default {
       let parameters = {
         account_id: this.user.userID
       }
+      $('#loading').css({display: 'block'})
       this.apiRequest('/bot_template/retrieve', parameters).then(response => {
+        $('#loading').css({display: 'none'})
         if(response.data.data.length > 0){
           let parse = JSON.parse(response.data.data[0].content)
           this.response = parse.data
@@ -614,8 +732,9 @@ export default {
       e.preventDefault()
       this.Data.append('account_id', this.user.userID)
       this.Data.append('content', JSON.stringify({data: this.response}))
+      $('#loading').css({display: 'block'})
       await this.formRequest('/bot_template/save', this.Data).then(response => {
-        console.log(response.data)
+        $('#loading').css({display: 'none'})
       })
     },
     url(directory){
@@ -626,9 +745,53 @@ export default {
 </script>
 
 <style scoped>
+.form_add{
+  width: 140px !important;
+  color: #00C2E0;
+}
+.form_field_wrapper{
+  width: 100%;
+}
+.form-popover{
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 40px;
+  width: 100% !important;
+  outline: none;
+  border: 1px solid rgb(216, 216, 216);
+}
+.form_field{
+  border: none;
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 40px;
+  width: 100% !important;
+  outline: none;
+}
+.form_field:active{
+  outline: none;
+  box-shadow: none;
+}
+.fieldSubContainer{
+  border: 1px solid rgb(216, 216, 216);
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fieldContainer{
+  /* border: 1px solid rgb(216, 216, 216);x */
+  border-radius: 0px;
+  font-size: 12px;
+  /* padding: 15px; */
+}
 .editor_container{
-    padding-left: 20%;
-    padding-right: 20%;
+  /* padding-left: 20%;
+  padding-right: 20%; */
 }
 .modalTrigger{
     display: none;
@@ -703,6 +866,12 @@ export default {
 }
 .bootEditorActions:focus{
     box-shadow: none;
+}
+.confirmationAdd{
+  width: 140px !important;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 13px;
 }
 .confirmationBTN{
     width: 220px;
