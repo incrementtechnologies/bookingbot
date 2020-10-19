@@ -163,12 +163,15 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
+        // Tymon\JWTAuth\Providers\LaravelServiceProvider,
         /*
             
             Increment Packages
 
         */
         Increment\Account\AccountServiceProvider::class,
+        Increment\Common\Image\ImageServiceProvider::class,
+        Increment\Common\Invitation\InvitationServiceProvider::class,
 
         /*
          * Package Service Providers...

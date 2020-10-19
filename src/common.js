@@ -4,6 +4,7 @@ export default {
     {accountType: 'RIDER', accountStatus: 'ALL', showOnAdmin: true, description: 'Dashboard', icon: 'fa fa-tachometer-alt', path: 'dashboard', flag: false, subMenu: null},
     {accountType: 'ALL', accountStatus: 'ALL', showOnAdmin: true, description: 'Featured', icon: 'fa fa-tachometer-alt', path: 'featured', flag: false, subMenu: null},
     {accountType: 'ALL', accountStatus: 'ALL', showOnAdmin: true, description: 'Marketplace', icon: 'fa fa-tachometer-alt', path: 'marketplace', flag: false, subMenu: null},
+    {accountType: 'ALL', accountStatus: 'ALL', showOnAdmin: true, description: 'Bot Editor', icon: 'fas fa-cogs', path: 'bot_editor', flag: false, subMenu: null},
     // {accountType: 'MERCHANT', accountStatus: 'ALL', showOnAdmin: true, description: 'My Product', icon: 'fa fa-tachometer-alt', path: 'products', flag: false, subMenu: null},
     {accountType: 'ADMIN', accountStatus: 'ALL', showOnAdmin: true, description: 'Account', icon: 'fa fa-tachometer-alt', path: 'accounts', flag: false, subMenu: null}
   ],
@@ -16,28 +17,11 @@ export default {
     icon: 'fa fa-users',
     route: '/referrals'
   }],
-  merchantMenu: [{
-    title: 'Inventory',
-    icon: 'fa fa-boxes',
-    route: '/products'
-  }, {
-    title: 'Wallet',
-    icon: 'fa fa-wallet',
-    route: '/wallet'
-  }, {
-    title: 'Ledger',
-    icon: 'fa fa-clipboard-list',
-    route: '/ledger'
-  }, {
-    title: 'Summary of Orders',
-    icon: 'fa fa-shopping-bag',
-    route: '/orders'
-  }],
   APP_NAME: 'BookingBot',
   APP_NAME_HTML: 'BookingBot',
   APP_EMAIL: 'support@runwayexpress.com',
-  COMPANY: 'BookingBot',
-  COMPANY_URL: 'https://runwayexpress.com',
+  COMPANY: 'Increment Technologies Inc.',
+  COMPANY_URL: 'http://increment.ltd',
   APP_URL: 'https://runwayexpress.com',
   COPYRIGHT: 'BookingBot ' + new Date().getFullYear(),
   USER_TYPE: [{
@@ -53,11 +37,8 @@ export default {
   header: ['status', 'notification'], // 'messenger', '',
   settingsMenu: [
     {title: 'Profile', hideFrom: ['MERCHANT'], type: 'profile', allowed: ['cellular_number', 'address', 'sex', 'birth_date']},
-    {title: 'Business Information', hideFrom: ['USER', 'RIDER'], type: 'merchant', allowed: ['email', 'prefix', 'website']},
     {title: 'Notifications', hideFrom: [], type: 'notification', allowed: []},
-    {title: 'Business Locations', hideFrom: ['USER', 'RIDER'], type: 'merchant_locations', allowed: []},
-    {title: 'Account', hideFrom: [], type: 'account', allowed: []},
-    {title: 'Billing Information', hideFrom: [], type: 'billing_information'}
+    {title: 'Account', hideFrom: [], type: 'account', allowed: []}
   ],
   notificationSeting: [{
     title: 'OTP',
@@ -78,51 +59,11 @@ export default {
     facebook: 'runwayexpress'
   },
   pusher: {
-    channel: 'runway',
+    channel: 'bookingbot',
     private: 'runway_broadcast',
     notifications: 'Notifications',
-    rider: 'Rider',
     messages: 'Message',
-    validation: 'Validation',
-    orders: 'Orders'
-  },
-  ecommerce: {
-    inventoryType: 'inventory',
-    editProductMenu: [{
-      title: 'Inventory',
-      flag: true
-    }, {
-      title: 'Variation',
-      flag: false
-    }, {
-      title: 'Price',
-      flag: false
-    }, {
-      title: 'Comment',
-      flag: false
-    }, {
-      title: 'Location',
-      flag: false
-    }],
-    editProductMenuRental: [{
-      title: 'Inventory',
-      flag: true
-    }, {
-      title: 'Variation',
-      flag: false
-    }, {
-      title: 'Price',
-      flag: false
-    }, {
-      title: 'Comment',
-      flag: false
-    }, {
-      title: 'Location',
-      flag: false
-    }],
-    productUnits: null,
-    productTitleLimit: 100,
-    variations: ['Size', 'Color']
+    validation: 'Validation'
   },
   broadcastingFlag: true,
   passwordLimit: 8,

@@ -12,3 +12,4 @@ api/vendor/
 api/storage/
 api/packages/
 api/.env
+api/.ENV

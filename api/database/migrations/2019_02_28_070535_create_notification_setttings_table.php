@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateBotTemplates extends Migration
+class CreateNotificationSetttingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,13 @@ class CreateBotTemplates extends Migration
      */
     public function up()
     {
-        Schema::create('bot_templates', function (Blueprint $table) {
+        Schema::create('notification_settings', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('account_id');
-            $table->string('code');
-            $table->string('title');
-            $table->longText('description');
-            $table->longText('demo_url');
-            $table->longText('content');
+            $table->unsignedInteger('email_login')->default(0);
+            $table->unsignedInteger('email_otp')->default(0);
+            $table->unsignedInteger('sms_login')->default(0);
+            $table->unsignedInteger('sms_otp')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -33,6 +32,6 @@ class CreateBotTemplates extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bot_templates');
+        Schema::dropIfExists('notification_settings');
     }
 }

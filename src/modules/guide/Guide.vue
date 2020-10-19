@@ -87,18 +87,6 @@ ul li{
         ROUTER.push(parameter)
       },
       getData(){
-        $.get('https://spreadsheets.google.com/feeds/cells/1di9gJrHSrzCJ61XitNlNV5zga8v2LHas0VdNVNfNO3I/7/public/values?alt=json', response => {
-          let entries = response.feed.entry
-          for (var i = 0; i < entries.length; i += 2) {
-            if(i > 1){
-              let accountType = entries[i].content.$t
-              if(accountType === this.user.type){
-                this.guide = entries[i + 1].content.$t
-                break
-              }
-            }
-          }
-        })
       }
     }
   }
