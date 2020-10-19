@@ -90,7 +90,8 @@ export default {
   }
 }
 </script>
-<style>
+<style lang="scss" scoped>
+>
 #card {
   max-height: 300px;
 }

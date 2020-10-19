@@ -67,7 +67,7 @@ export default{
     name: 'dashboard',
     component: resolve => require(['modules/dashboard/Dashboard.vue'], resolve),
     meta: {
-      tokenRequired: true
+      tokenRequired: false
     }
   }, {
     path: '/referrals/',
@@ -88,7 +88,7 @@ export default{
     name: 'setting',
     component: resolve => require(['modules/Facebook/Setting.vue'], resolve),
     meta: {
-      tokenRequired: true
+      tokenRequired: false
     }
   },
   {
