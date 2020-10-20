@@ -119,24 +119,30 @@
                                     </center>
                                     <input type="text" class="form-control productsElement" placeholder="Title here" v-model="response[index].data.reply[data_index].title"/>
                                     <textarea class="form-control productsElement" placeholder="Description" v-model="response[index].data.reply[data_index].description"></textarea>
-                                    <button 
-                                        type="button" 
-                                        class="btn btn-info form-control productsElement bootEditorButtonfull" 
-                                        v-for="(btn, productBTNNx) in data.buttons" 
-                                        :key="'products' + String(btn) + String(data_index + productBTNNx)"
-                                        :id="'pop' + (String(data_index) + String(productBTNNx) + String(index))"
-                                        @click="setUpBtnEvent('pop' + (data_index + productBTNNx + index), btn)"
-                                    >{{(btn.buttonName !== '') ? btn.buttonName : 'click to setup' }}</button>
+                                    <div v-for="(btn, productBTNNx) in data.buttons" :key="'products' + String(btn) + String(data_index + productBTNNx)">
+                                      <button 
+                                          type="button" 
+                                          class="btn btn-info form-control productsElement bootEditorButtonfull"
+                                          :id="'pop' + (String(data_index) + String(productBTNNx) + String(index))"
+                                          @click="setUpBtnEvent('pop' + (data_index + productBTNNx + index), btn)"
+                                      >{{(btn.title !== '') ? btn.title : 'click to setup' }}</button>
+                                      <i class="far fa-trash-alt setup_remove" title="remove button" @click="removeReply(index, data_index, 'productButton', productBTNNx)"></i>
+                                    </div>
 
                                     <b-popover ref="popover" v-for="(pops, popIndex) in data.buttons" :key="popIndex + data_index" :target="'pop' + (String(data_index) + String(popIndex) + String(index))" placement="right">
-                                        <b class="popOverLabel"> Button Name </b>
-                                        <input type="text" class="form-control mb-2" placeholder="Button Name" v-model="buttonName"/>
-                                        <b class="popOverLabel"> Button Action </b>
-                                        <input type="text" class="form-control mb-2" placeholder="link" v-model="buttonAction"/>
-                                        <button type="button" class="btn btn-info form-control" @click="setup(index, data_index, popIndex)"> setup </button> 
+                                      <b class="popOverLabel"> Button Type </b>
+                                      <select class="btn_type_select form-control" v-model="buttonType">
+                                        <option v-for="(btnType, type_ndx) in buttonTypes" :key="type_ndx">{{btnType}}</option>
+                                      </select>
+                                      <b class="popOverLabel"> Button Name </b>
+                                      <input type="text" class="form-control mb-2" placeholder="Button Name" v-model="buttonName"/>
+                                      <b class="popOverLabel"> {{(pops.type.toLowerCase === 'url button' || buttonType.toLowerCase() === 'url button') ? 'Url' : 'Payload'}} </b>
+                                      <input type="text" class="form-control mb-2" :placeholder="(pops.values.toLowerCase() === 'url button' || buttonType.toLowerCase() === 'url button') ? 'url' : 'payload'" v-model="buttonAction"/>
+                                      <button type="button" class="btn btn-info form-control" @click="setup(index, data_index, popIndex)"> Setup </button>
                                     </b-popover>
 
                                     <button type="button" class="btn btn-info form-control productsElement bootEditorButtonOutlined" @click="addReply('addproductbutton', index, data_index, $event)">New Button</button>
+                                    <button type="button" class="btn btn-info form-control productsElement bootEditorButtonOutlined" @click="removeReply(index, data_index, item.type)">Remove Product</button>
                                 </div>
                             </div>
                         </div>
@@ -180,20 +186,25 @@
                                 </div>
                             </div>
                             <div class="redirects">
-                                <div style="width: 180px; margin-right: 15px;" v-for="(data, re_index) in item.data.reply" :key="'redirect' + String(re_index) + String(index)">
+                                <div class="mr-2" v-for="(data, re_index) in item.data.reply" :key="'redirect' + String(re_index) + String(index)">
                                     <button 
                                     type="button" 
                                     class="btn btn-outline-info form-control productsElement bootEditorButtonOutlined ButtonsSlider"
                                     :id="'re_pop' + (String(re_index) + String(index))"
                                     @click="setUpBtnEvent('re_pop' + (re_index + index), data)"
                                     >
-                                    {{(data.buttonName !== '') ? data.buttonName : 'click to setup'}}</button>
+                                    {{(data.title !== '') ? data.title : 'click to setup'}}</button>
+                                    <i class="far fa-trash-alt setup_remove" title="remove button" @click="removeReply(index, re_index, item.type)"></i>
                                     <b-popover ref="popover" :target="'re_pop' + (String(re_index) + String(index))" placement="right">
-                                        <b class="popOverLabel"> Button Name </b>
-                                        <input type="text" class="form-control mb-2" placeholder="Button Name" v-model="buttonName"/>
-                                        <b class="popOverLabel"> Button Action </b>
-                                        <input type="text" class="form-control mb-2" placeholder="link" v-model="buttonAction"/>
-                                        <button type="button" class="btn btn-info form-control" @click="setUpRedirect(index, re_index)"> setup </button>
+                                      <b class="popOverLabel"> Button Type </b>
+                                      <select class="btn_type_select form-control" v-model="buttonType">
+                                        <option v-for="(btnType, type_ndx) in buttonTypes" :key="type_ndx">{{btnType}}</option>
+                                      </select>
+                                      <b class="popOverLabel"> Button Name </b>
+                                      <input type="text" class="form-control mb-2" placeholder="Button Name" v-model="buttonName"/>
+                                      <b class="popOverLabel">{{(data.type.toLowerCase() === 'url button' || buttonType.toLowerCase() === 'url button') ? 'Url' : 'Payload'}}</b>
+                                      <input type="text" class="form-control mb-2" :placeholder="(data.type.toLowerCase() === 'url button' || buttonType.toLowerCase() === 'url button') ? 'Url' : 'Payload'" v-model="buttonAction"/>
+                                      <button type="button" class="btn btn-info form-control" @click="setUpRedirect(index, re_index,)"> Setup </button>
                                     </b-popover>
                                 </div>
                             </div>
@@ -231,21 +242,27 @@
                             <input type="text" class="form-control" placeholder="Getting Started, Hi, Hello ..." v-model="response[index].data.keywords"/>
                             <p>Reply</p>
                             <input type="text" class="form-control productsElement" placeholder="Are your sure?" v-model="response[index].data.reply"/>
-                             <button type="button" class="mb-4 mt-4 btn btn-info productsElement bootEditorButtonOutlined confirmationBTN confirmationAdd" @click="addReply(item.type, index, null, $event)"><i class="fas fa-plus-circle mr-1"></i> Add Button</button>
+                             <button type="button" class="mb-4 mt-4 btn btn-info productsElement bootEditorButtonOutlined confirmationBTN type_select" @click="addReply(item.type, index, null, $event)"><i class="fas fa-plus-circle mr-1"></i> Add Button</button>
                             <div class="d-flex justify-content-end">
+                              <div v-for="(co_btn, co_btn_index) in item.data.buttons" :key="'confirmation' + String(co_btn_index) + String(index)">
                                 <button 
                                 type="button" 
                                 class="btn btn-info productsElement bootEditorButtonfull confirmationBTN" 
-                                v-for="(co_btn, co_btn_index) in item.data.buttons" :key="'confirmation' + String(co_btn_index) + String(index)"
                                 :id="'co_pop' + (String(co_btn_index) + String(index))"
                                 @click="setUpBtnEvent('co_pop' + (String(co_btn_index) + String(index)), co_btn)"
-                                >{{(co_btn.buttonName !== '') ? co_btn.buttonName : 'click to setup'}}</button>
+                                >{{(co_btn.title !== '') ? co_btn.title : 'click to setup'}}</button>
+                                <i class="far fa-trash-alt setup_remove" title="remove button" @click="removeReply(index, co_btn_index, item.type)"></i>
+                              </div>
                                 <b-popover ref="popover" v-for="(pops, co_popIndex) in item.data.buttons" :key="co_popIndex + index" :target="'co_pop' + (String(co_popIndex) + String(index))" placement="right">
-                                    <b class="popOverLabel"> Button Name </b>
-                                    <input type="text" class="form-control mb-2" placeholder="Button Name" v-model="buttonName"/>
-                                    <b class="popOverLabel"> Button Action </b>
-                                    <input type="text" class="form-control mb-2" placeholder="link" v-model="buttonAction"/>
-                                    <button type="button" class="btn btn-info form-control" @click="setUpConfirmation(index, co_popIndex)"> setup </button> 
+                                  <b class="popOverLabel"> Button Type </b>
+                                  <select class="btn_type_select form-control" v-model="buttonType">
+                                    <option v-for="(btnType, type_ndx) in buttonTypes" :key="type_ndx">{{btnType}}</option>
+                                  </select>
+                                  <b class="popOverLabel"> Button Name </b>
+                                  <input type="text" class="form-control mb-2" placeholder="Button Name" v-model="buttonName"/>
+                                  <b class="popOverLabel"> {{(pops.type.toLowerCase() === 'url button' || buttonType.toLowerCase() === 'url button') ? 'Url' : 'Payload'}} </b>
+                                  <input type="text" class="form-control mb-2" :placeholder="(pops.type.toLowerCase() === 'url button' || buttonType.toLowerCase() === 'url button') ? 'Url' : 'Payload'"  v-model="buttonAction"/>
+                                  <button type="button" class="btn btn-info form-control" @click="setUpConfirmation(index, co_popIndex)"> Setup </button> 
                                 </b-popover>
                             </div>
                         </div>
@@ -283,7 +300,7 @@
                             <p class="mb-1 mt-2">Page Number:</p>
                             <input type="number" class="form-control" placeholder="Page Number" v-model="response[index].data.page_number"/>
                             <div class="mt-4">
-                            <button type="button" class="form-control btn bt-info bootEditorActions form_add" @click="addReply(item.type, index, null, $event)"> <i class="fas fa-plus-circle mr-1"></i> Add </button>
+                            <button type="button" class="form-control btn bt-info bootEditorActions type_select" @click="addReply(item.type, index, null, $event)"> <i class="fas fa-plus-circle mr-1"></i> Question </button>
                             </div>
                             <div class="fieldContainer">
                               <div class="fieldSubContainer mt-4 mt-1 mb-1 p-0" v-for="(form, form_index) in item.data.fields" :key="String(form) + form_index">
@@ -299,10 +316,12 @@
                               </div>
                               <b-popover ref="popover" v-for="(pops, form_popIndex) in item.data.fields" :key="form_popIndex + index" :target="'form_pop' + (String(form_popIndex) + String(index))" placement="right">
                                     <b class="popOverLabel"> Type </b>
-                                    <input type="text" class="form-popover mb-2" placeholder="Field Type" v-model="formType"/>
-                                    <b class="popOverLabel"> Length </b>
-                                    <input type="number" class="form-popover mb-2" placeholder="Field Length" v-model="formLength"/>
-                                    <button type="button" class="btn btn-info form-control" @click="settingsSave(index, form_popIndex)"> setup </button>
+                                    <select class="btn_type_select form-control" v-model="formType">
+                                      <option v-for="(btnType, type_ndx) in fieldTypes" :key="type_ndx">{{btnType}}</option>
+                                    </select>
+                                    <b class="popOverLabel" v-if="pops.type.toLowerCase() === 'Text' || formType.toLowerCase() === 'text'"> Length </b>
+                                    <input type="number" class="form-popover mb-2" placeholder="Field Length" v-model="formLength" v-if="pops.type.toLowerCase() === 'Text' || formType.toLowerCase() === 'text'"/>
+                                    <button type="button" class="btn btn-info form-control mt-2" @click="settingsSave(index, form_popIndex)"> Setup </button>
                                 </b-popover>
                             </div>
                         </div>
@@ -399,6 +418,7 @@ export default {
       popState: false,
       buttonName: '',
       buttonAction: '',
+      buttonType: '',
       formType: '',
       formLength: '',
       bgImage: '',
@@ -406,7 +426,15 @@ export default {
       BACKEND_URL: CONFIG.BACKEND_URL,
       user: AUTH.user,
       modalShow: false,
-      Data: new FormData()
+      Data: new FormData(),
+      buttonTypes: [
+        'URL Button',
+        'Postback Button'
+      ],
+      fieldTypes: [
+        'Text',
+        'Email'
+      ]
     }
   },
   mounted () {
@@ -465,8 +493,9 @@ export default {
         case 'redirects':
           if(this.response[index].data.reply.length + 1 < 11){
             let tempRedirect = {
-              buttonName: '',
-              values: ''
+              title: '',
+              values: '',
+              type: ''
             }
             this.response[index].data.reply.push(tempRedirect)
           }else{
@@ -478,8 +507,9 @@ export default {
         case 'confirmation':
           if(this.response[index].data.buttons.length + 1 < 4){
             let tempConfirmation = {
-              buttonName: '',
-              values: ''
+              title: '',
+              values: '',
+              type: ''
             }
             this.response[index].data.buttons.push(tempConfirmation)
           }else{
@@ -491,8 +521,9 @@ export default {
         case 'addproductbutton':
           if(this.response[index].data.reply[optionalIndex].buttons.length + 1 < 4){
             let tempAddProductButton = {
-              buttonName: '',
-              values: ''
+              title: '',
+              values: '',
+              type: ''
             }
             this.response[index].data.reply[optionalIndex].buttons.push(tempAddProductButton)
           }else{
@@ -604,28 +635,34 @@ export default {
     },
     setup(index, dataIndex, buttonIndex){
       this.$root.$emit('bv::hide::popover')
-      this.response[index].data.reply[dataIndex].buttons[buttonIndex].buttonName = this.buttonName
+      this.response[index].data.reply[dataIndex].buttons[buttonIndex].title = this.buttonName
       this.response[index].data.reply[dataIndex].buttons[buttonIndex].values = this.buttonAction
+      this.response[index].data.reply[dataIndex].buttons[buttonIndex].type = this.buttonType
       this.buttonName = ''
       this.buttonAction = ''
+      this.buttonType = ''
     },
     setUpRedirect(index, ReIndex){
       this.$root.$emit('bv::hide::popover')
-      this.response[index].data.reply[ReIndex].buttonName = this.buttonName
-      this.response[index].data.reply[ReIndex].buttonAction = this.buttonAction
+      this.response[index].data.reply[ReIndex].title = this.buttonName
+      this.response[index].data.reply[ReIndex].values = this.buttonAction
+      this.response[index].data.reply[ReIndex].type = this.buttonType
       this.buttonName = ''
       this.buttonAction = ''
     },
     setUpConfirmation(index, CoIndex){
       this.$root.$emit('bv::hide::popover')
-      this.response[index].data.buttons[CoIndex].buttonName = this.buttonName
-      this.response[index].data.buttons[CoIndex].buttonAction = this.buttonAction
+      this.response[index].data.buttons[CoIndex].title = this.buttonName
+      this.response[index].data.buttons[CoIndex].values = this.buttonAction
+      this.response[index].data.buttons[CoIndex].type = this.buttonType
       this.buttonName = ''
       this.buttonAction = ''
+      this.buttonType = ''
     },
     setUpBtnEvent(id, btn){
-      this.buttonName = btn.buttonName
+      this.buttonName = btn.title
       this.buttonAction = btn.values
+      this.buttonType = btn.type
       if(this.popState){
         this.$root.$emit('bv::hide::popover')
         this.popState = !this.popState
@@ -739,18 +776,57 @@ export default {
     },
     url(directory){
       return (directory === '') ? '' : this.BACKEND_URL
+    },
+    removeReply(index, toRemoveIndex, type, optionalIndex = null){
+      switch(type){
+        case 'products':
+          this.response[index].data.reply.splice(toRemoveIndex, 1)
+          break
+        case 'confirmation':
+          this.response[index].data.buttons.splice(toRemoveIndex, 1)
+          break
+        case 'redirects':
+          this.response[index].data.reply.splice(toRemoveIndex, 1)
+          break
+        case 'productButton':
+          this.response[index].data.reply[toRemoveIndex].buttons.splice(optionalIndex, 1)
+          break
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+.form-control{
+  font-size: 14px;
+}
+.popover{
+  width: 320px !important;
+}
+.btn_type_select{
+  font-size: 14px !important;
+  /* border: 1px solid #00C2E0;
+  color: #00C2E0; */
+}
+.setup_remove{
+  position: absolute;
+  font-size: 11px !important;
+  color: red;
+  padding: 6px;
+  border-radius: 50%;
+  border: 1px solid white;
+  margin-top: 6px;
+  margin-left: -35px !important;
+  background: white;
+}
 .form_add{
   width: 140px !important;
   color: #00C2E0;
 }
 .form_field_wrapper{
   width: 100%;
+  border-radius: 4px;
 }
 .form-popover{
   padding-left: 15px;
@@ -762,6 +838,7 @@ export default {
 }
 .form_field{
   border: none;
+  border-radius: 4px;
   padding-left: 15px;
   padding-right: 15px;
   height: 40px;
@@ -774,6 +851,7 @@ export default {
 }
 .fieldSubContainer{
   border: 1px solid rgb(216, 216, 216);
+  border-radius: 4px;
   padding-left: 5px;
   padding-right: 5px;
   padding-top: 5px;
@@ -827,6 +905,7 @@ export default {
     width: 140px !important;
     display: inline;
     padding-top: 5px;
+    font-size: 12px;
 }
 .bootEditorActionGroup{
     display: flex;
@@ -912,6 +991,7 @@ export default {
 }
 .bootEditorCard{
     margin-bottom: 15px;
+    font-size: 14px !important;
 }
 .bootEditorCardFooter{
     background: none;
@@ -959,7 +1039,7 @@ export default {
 }
 .ButtonsSlider{
     border-radius: 20px;
-    width: 150px;
+    width: 170px;
     white-space: normal !important;
 }
  /* style="height: 140px; width: 180px; border: 1px solid #e3e1da;" */
