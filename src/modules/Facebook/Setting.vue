@@ -4,7 +4,7 @@
       <div class="container-fluid d-flex justify-content-between">
         Facebook Page: Increment Technologies
         <div>
-          <button type="button" id="btn" class="btn btn-info">Save</button>
+          <button type="button" id="btn" class="btn btn-info"  @click="save()" >Save</button>
           <b-button id="btn" variant="outline-info">Configure</b-button>
         </div>
       </div>
@@ -65,6 +65,10 @@
   </div>
 </template>
 <script>
+import ROUTER from 'src/router'
+import Vue from 'vue'
+import AUTH from 'src/services/auth'
+import COMMON from 'src/common.js'
 export default {
   data: () => {
     return {
@@ -75,7 +79,39 @@ export default {
       ]
     }
   },
+  mounted() {
+    this.retrieve()
+  },
+  computed: {
+    returnMenus () {
+      return this.menus
+    }
+  },
   methods: {
+    retrieve(){
+      let parameter = {
+        condition: [{
+          value: this.menus
+        }]
+      }
+      this.APIRequest('menu_settings/retrieve', parameter).then(response => {
+        let parse = JSON.parse(response.data.menus)
+        this.response = parse.data
+        console.log(this.menus)
+      })
+      .catch(err => console.log(err))
+    },
+    save(){
+      console.log(this.menus)
+      if(this.menu.name !== this.data.name){
+        this.APIRequest('menu_settings/save', this.menus).then(response => {
+          if (response === true){
+            console.log(this.menus)
+          }
+          this.retrieve()
+        })
+      }
+    },
     startDrag: (event, index) => {
       event.dataTransfer.dropEffect = 'move'
       event.dataTransfer.effectAllowed = 'move'
@@ -91,23 +127,27 @@ export default {
 }
 </script>
 <style scoped>
-#card {
-  max-height: 300px;
-}
-.row {
-  padding-top: 0px;
-  padding-block-end: 10px;
-}
-.fa {
-  margin-left: 220px;
-  margin-top: 15px;
+fa {
+  margin-left: 75px;
   cursor: pointer;
   user-select: none;
 }
 .card-header {
-  height: 1.9cm;
+  max-height: 1.9cm;
 }
 #btn {
   width: 105px;
+}
+@media (min-width: 1200px){
+.container-fluid{
+    padding-left: 0px;
+    padding-right: 0px;
+    }
+}
+@media (max-width: 150px) {
+  .container-fluid{
+    padding-left: 0px;
+    padding-right: 0px;
+    }
 }
 </style>
