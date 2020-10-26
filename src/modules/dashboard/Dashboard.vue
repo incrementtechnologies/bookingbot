@@ -62,7 +62,5 @@ export default {
 <style scoped>
 div{
   width:600px;
-
 }
 </style>
-  
