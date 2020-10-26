@@ -138,16 +138,4 @@ fa {
 #btn {
   width: 105px;
 }
-@media (min-width: 1200px){
-.container-fluid{
-    padding-left: 0px;
-    padding-right: 0px;
-    }
-}
-@media (max-width: 150px) {
-  .container-fluid{
-    padding-left: 0px;
-    padding-right: 0px;
-    }
-}
 </style>
