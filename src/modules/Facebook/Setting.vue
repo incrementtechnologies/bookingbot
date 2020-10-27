@@ -4,8 +4,8 @@
       <div class="container-fluid d-flex justify-content-between">
         Facebook Page: Increment Technologies
         <div>
-          <button type="button" id="btn" class="btn btn-info"  @click="save()" >Save</button>
-          <b-button id="btn" variant="outline-info">Configure</b-button>
+          <button type="button" id="btn" class="btn btn-info"  @click="retrieve()" >Save</button>
+          <b-button id="btn" variant="outline-info"  @click="setting.configure = !setting.configure ">Configure</b-button>
         </div>
       </div>
       <div class="container-fluid mt-3">
@@ -13,7 +13,7 @@
         <div class="d-flex justify-content-between">
           Enable to allow user click the get started button and reply
           the welcome message
-          <b-button id="btn" variant="outline-info">Enable</b-button>
+          <b-button id="btn" variant="outline-info"  @click="setting.enable = !setting.enable ">Enable</b-button>
         </div>
       </div>
     </div>
@@ -22,7 +22,7 @@
     >
       <div class="row">
         <div class="col-lg-4" 
-        v-for="(menu,i) in menus"
+        v-for="(menu,i) in setting.menus"
         :key="i"
         @dragstart="startDrag($event,i)"
         @drop="onDrop($event,i)"
@@ -72,41 +72,46 @@ import COMMON from 'src/common.js'
 export default {
   data: () => {
     return {
-      menus: [
-        { id: 1, name: 'Menu 1' },
-        { id: 2, name: 'Menu 2' },
-        { id: 3, name: 'Menu 3' }
-      ]
+      setting: {
+        configure: false,
+        enable: false,
+        menus: [
+          { id: 1, name: 'Menu 1', payload: null },
+          { id: 2, name: 'Menu 2', payload: null },
+          { id: 3, name: 'Menu 3', payload: null }
+        ]
+      }
     }
   },
   mounted() {
     this.retrieve()
   },
   computed: {
-    returnMenus () {
-      return this.menus
+    returnSetting () {
+      return this.setting
     }
   },
   methods: {
     retrieve(){
-      let parameter = {
-        condition: [{
-          value: this.menus
-        }]
-      }
-      this.APIRequest('menu_settings/retrieve', parameter).then(response => {
-        let parse = JSON.parse(response.data.menus)
-        this.response = parse.data
-        console.log(this.menus)
-      })
-      .catch(err => console.log(err))
+      console.log(JSON.stringify(this.setting))
+      // let parameter = {
+      //   condition: [{
+      //     value: this.setting
+      //   }]
+      // }
+      // this.APIRequest('menu_settings/retrieve', parameter).then(response => {
+      //   let stringify = JSON.stringify(this.setting)
+      //   this.response = stringify
+      //   console.log(this.response)
+      // })
+      // .catch(err => console.log(err))
     },
     save(){
-      console.log(this.menus)
-      if(this.menu.name !== this.data.name){
-        this.APIRequest('menu_settings/save', this.menus).then(response => {
+      console.log(JSON.stringify(this.setting))
+      if(this.setting.menus !== this.setting.menus){
+        this.APIRequest('menu_settings/save', this.setting).then(response => {
           if (response === true){
-            console.log(this.menus)
+            console.log(JSON.stringify(this.setting))
           }
           this.retrieve()
         })
@@ -119,9 +124,9 @@ export default {
     },
     onDrop(evt, id) {
       const index = evt.dataTransfer.getData('menuIndex')
-      let temp = this.menus[index]
-      this.menus.splice(index, 1)
-      this.menus.splice(id, 0, temp)
+      let temp = this.setting.menus[index]
+      this.setting.menus.splice(index, 1)
+      this.setting.menus.splice(id, 0, temp)
     }
   }
 }
@@ -137,5 +142,17 @@ fa {
 }
 #btn {
   width: 105px;
+}
+@media (min-width: 1200px){
+.container-fluid{
+    padding-left: 0px;
+    padding-right: 0px;
+    }
+}
+@media (max-width: 150px) {
+  .container-fluid{
+    padding-left: 0px;
+    padding-right: 0px;
+    }
 }
 </style>
