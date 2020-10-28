@@ -4,7 +4,7 @@
       <div class="container-fluid d-flex justify-content-between">
         Facebook Page: Increment Technologies
         <div>
-          <button type="button" id="btn" class="btn btn-info"  @click="retrieve()" >Save</button>
+          <button type="button" id="btn" class="btn btn-info"  @click="save()" >Save</button>
           <b-button id="btn" variant="outline-info"  @click="setting.configure = !setting.configure ">Configure</b-button>
         </div>
       </div>
@@ -94,17 +94,17 @@ export default {
   methods: {
     retrieve(){
       console.log(JSON.stringify(this.setting))
-      // let parameter = {
-      //   condition: [{
-      //     value: this.setting
-      //   }]
-      // }
-      // this.APIRequest('menu_settings/retrieve', parameter).then(response => {
-      //   let stringify = JSON.stringify(this.setting)
-      //   this.response = stringify
-      //   console.log(this.response)
-      // })
-      // .catch(err => console.log(err))
+      let parameter = {
+        condition: [{
+          value: this.setting
+        }]
+      }
+      this.APIRequest('menu_settings/retrieve', parameter).then(response => {
+        let stringify = JSON.stringify(this.setting)
+        this.response = stringify
+        console.log(this.response)
+      })
+      .catch(err => console.log(err))
     },
     save(){
       console.log(JSON.stringify(this.setting))
