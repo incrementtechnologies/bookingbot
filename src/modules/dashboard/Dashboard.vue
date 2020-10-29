@@ -190,18 +190,6 @@ export default {
         this.fbData = response.data
         this.retrieveSetup()
         console.log('-------curl', response)
-        // this.retrieveData.forEach(el => {
-        //   this.data.forEach(e => {
-        //     if(el.id !== e.fb){
-        //       this.fbData.push(el)
-        //     }
-        //   })
-        // })
-        // if(response.data.length > 0){
-        //   this.fbData = response.data
-        // }else{
-        //   this.fbData = []
-        // }
       })
     },
     set(item){
