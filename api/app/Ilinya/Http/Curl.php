@@ -18,6 +18,45 @@ class Curl
         return $this->get($url, true);
     }
 
+    // public function getPage(){
+    //     curl -i -X GET "https://graph.facebook.com/{user-id}/accounts?access_token={user-access-token}"
+    // }
+
+    public function getFbPage($userId, $user_access_token){
+        // $url = "https://graph.facebook.com/v2.8/me/accounts?access_token=" . $user_access_token;
+        $url = "https://graph.facebook.com/v2.8/" . $userId . "/accounts?access_token=" . $user_access_token;
+        $request = curl_init();
+        curl_setopt($request, CURLOPT_URL, $url);
+        curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($request, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($request, CURLOPT_COOKIEJAR, 'cookie.txt');
+        curl_setopt($request, CURLOPT_COOKIEFILE, 'cookie.txt');
+        curl_setopt($request, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+        curl_setopt($request, CURLOPT_SSL_VERIFYPEER, false);
+        $result = curl_exec($request);
+        curl_close($request);
+        $response = json_decode($result, true);
+        return $response;
+    }
+
+    // public function getPage($url, $flag, $user_access_token)
+    // {
+    //     $request = $this->preparePage($url, $flag, $user_access_token);
+    //     set_time_limit(0);
+    //     return $this->executeBody($request);
+    // }
+
+    // public function preparePage($url, $flag, $user_access_token)
+    // {
+    //     $request = curl_init();
+    //     curl_setopt($request, CURLOPT_URL, $url);
+    //     curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+    //     curl_setopt($request, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+    //     curl_setopt($request, CURLINFO_HEADER_OUT, true);
+    //     curl_setopt($request, CURLOPT_SSL_VERIFYPEER, true);
+    //     return $request;
+    // }
+
     public static function send($recipientId, $message)
     {
         $parameter = [

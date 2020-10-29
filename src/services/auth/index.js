@@ -92,7 +92,7 @@ export default {
       localStorage.setItem('account_id', this.user.userID)
       localStorage.setItem('account/' + code, JSON.stringify(this.user))
       if(flag){
-        ROUTER.push(type === 'USER' ? '/welcome' : '/dashboard')
+        ROUTER.push(type === 'USER' ? '/dashboard' : '/welcome')
       }
     }
     setTimeout(() => {
@@ -207,6 +207,8 @@ export default {
     localStorage.removeItem('account_id')
     localStorage.removeItem('google_code')
     localStorage.removeItem('google_scope')
+    localStorage.removeItem('fb_token')
+    localStorage.removeItem('fb_user_id')
     this.setUser(null)
     let vue = new Vue()
     vue.APIRequest('authenticate/invalidate')
