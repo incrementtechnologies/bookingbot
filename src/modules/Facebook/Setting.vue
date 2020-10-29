@@ -5,7 +5,7 @@
         Facebook Page: Increment Technologies
         <div>
           <button type="button" id="btn" class="btn btn-info"  @click="save()" >Save</button>
-          <b-button id="btn" variant="outline-info">Configure</b-button>
+          <b-button id="btn" variant="outline-info"  @click="setting.configure = !setting.configure ">Configure</b-button>
         </div>
       </div>
       <div class="container-fluid mt-3">
@@ -13,7 +13,7 @@
         <div class="d-flex justify-content-between">
           Enable to allow user click the get started button and reply
           the welcome message
-          <b-button id="btn" variant="outline-info">Enable</b-button>
+          <b-button id="btn" variant="outline-info"  @click="setting.enable = !setting.enable ">Enable</b-button>
         </div>
       </div>
     </div>
@@ -22,7 +22,7 @@
     >
       <div class="row">
         <div class="col-lg-4" 
-        v-for="(menu,i) in menus"
+        v-for="(menu,i) in setting.menus"
         :key="i"
         @dragstart="startDrag($event,i)"
         @drop="onDrop($event,i)"
@@ -30,10 +30,9 @@
         @dragenter.prevent
         >
           <div class="border mb-3">
-            <div class="card border-0 d-flex justify-content-between align-items-center px-3 py-1">
-              <div class="card-title">
-                {{menu.name}}
-                <span class="d-inline-flex align-items-center ml-4">
+            <div class="card border-0 px-3 py-1">
+              <div class="card-title d-flex justify-content-between d-inline-flex align-items-center  ">
+                <div>{{menu.name}} 
                   <a
                     data-toggle="collapse"
                     :href="'#'+ i"
@@ -41,10 +40,26 @@
                     aria-expanded="false"
                     :aria-controls="i"
                   >
-                    <i class="fa fa-chevron-up mr-3"></i>
+                    <!-- <i class="fa fa-chevron-up mr-3"></i> -->
                   </a>
-                  <div class="border border-primary rounded-circle py-2 px-3 mt-2" v-text="i+1"></div>
-                </span>
+                </div> 
+                <!-- <span class="d-inline-flex align-items-center "> -->
+                  <!-- <a
+                    data-toggle="collapse"
+                    :href="'#'+ i"
+                    role="button"
+                    aria-expanded="false"
+                    :aria-controls="i"
+                  >
+                    <i class="fa fa-chevron-up mr-3"></i>
+                  </a> -->
+                  <div class="d-flex justify-content-between d-inline-flex align-items-center ">
+                    <i class="fa fa-chevron-up mr-3"></i>
+                    <div class="border border-primary rounded-circle py-2 px-3 mt-2">
+                     {{i+1}}
+                    </div>
+                  </div>
+                <!-- </span> -->
               </div>
             </div>
             <div class="collapse show" :id="i">
@@ -72,43 +87,44 @@ import COMMON from 'src/common.js'
 export default {
   data: () => {
     return {
-      menus: [
-        { id: 1, name: 'Menu 1' },
-        { id: 2, name: 'Menu 2' },
-        { id: 3, name: 'Menu 3' }
-      ]
+      user: AUTH.user,
+      setting: {
+        configure: false,
+        enable: false,
+        menus: [
+          { id: 1, name: 'Menu 1', payload: null },
+          { id: 2, name: 'Menu 2', payload: null },
+          { id: 3, name: 'Menu 3', payload: null }
+        ]
+      }
     }
   },
   mounted() {
     this.retrieve()
   },
   computed: {
-    returnMenus () {
-      return this.menus
+    returnSetting () {
+      return this.setting
     }
   },
   methods: {
     retrieve(){
+      console.log(JSON.stringify(this.setting))
       let parameter = {
-        condition: [{
-          value: this.menus
-        }]
+        account_id: this.user.userID
       }
-      this.APIRequest('menu_settings/retrieve', parameter).then(response => {
-        let parse = JSON.parse(response.data.menus)
-        this.response = parse.data
-        console.log(this.menus)
+      $('#loading').css({display: 'block'})
+      this.APIRequest('bot_template/retrieve', parameter).then(response => {
+        $('#loading').css({display: 'none'})
       })
       .catch(err => console.log(err))
     },
     save(){
-      console.log(this.menus)
-      if(this.menu.name !== this.data.name){
-        this.APIRequest('menu_settings/save', this.menus).then(response => {
-          if (response === true){
-            console.log(this.menus)
-          }
-          this.retrieve()
+      console.log(this.setting)
+      if(this.setting.menus !== this.setting.menus){
+        $('#loading').css({display: 'block'})
+        this.APIRequest('bot_template/save', JSON.stringify(this.setting)).then(response => {
+          $('#loading').css({display: 'none'})
         })
       }
     },
@@ -119,9 +135,9 @@ export default {
     },
     onDrop(evt, id) {
       const index = evt.dataTransfer.getData('menuIndex')
-      let temp = this.menus[index]
-      this.menus.splice(index, 1)
-      this.menus.splice(id, 0, temp)
+      let temp = this.setting.menus[index]
+      this.setting.menus.splice(index, 1)
+      this.setting.menus.splice(id, 0, temp)
     }
   }
 }
@@ -137,5 +153,11 @@ fa {
 }
 #btn {
   width: 105px;
+}
+@media (max-width: 992px) {
+  .container-fluid{
+    padding-left: 0px;
+    padding-right: 0px;
+    }
 }
 </style>
