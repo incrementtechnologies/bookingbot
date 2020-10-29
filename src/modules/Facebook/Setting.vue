@@ -30,10 +30,9 @@
         @dragenter.prevent
         >
           <div class="border mb-3">
-            <div class="card border-0 d-flex justify-content-between align-items-center px-3 py-1">
-              <div class="card-title">
-                {{menu.name}}
-                <span class="d-inline-flex align-items-center ml-4">
+            <div class="card border-0 px-3 py-1">
+              <div class="card-title d-flex justify-content-between d-inline-flex align-items-center  ">
+                <div>{{menu.name}} 
                   <a
                     data-toggle="collapse"
                     :href="'#'+ i"
@@ -41,10 +40,26 @@
                     aria-expanded="false"
                     :aria-controls="i"
                   >
-                    <i class="fa fa-chevron-up mr-3"></i>
+                    <!-- <i class="fa fa-chevron-up mr-3"></i> -->
                   </a>
-                  <div class="border border-primary rounded-circle py-2 px-3 mt-2" v-text="i+1"></div>
-                </span>
+                </div> 
+                <!-- <span class="d-inline-flex align-items-center "> -->
+                  <!-- <a
+                    data-toggle="collapse"
+                    :href="'#'+ i"
+                    role="button"
+                    aria-expanded="false"
+                    :aria-controls="i"
+                  >
+                    <i class="fa fa-chevron-up mr-3"></i>
+                  </a> -->
+                  <div class="d-flex justify-content-between d-inline-flex align-items-center ">
+                    <i class="fa fa-chevron-up mr-3"></i>
+                    <div class="border border-primary rounded-circle py-2 px-3 mt-2">
+                     {{i+1}}
+                    </div>
+                  </div>
+                <!-- </span> -->
               </div>
             </div>
             <div class="collapse show" :id="i">
@@ -72,6 +87,7 @@ import COMMON from 'src/common.js'
 export default {
   data: () => {
     return {
+      user: AUTH.user,
       setting: {
         configure: false,
         enable: false,
@@ -95,25 +111,20 @@ export default {
     retrieve(){
       console.log(JSON.stringify(this.setting))
       let parameter = {
-        condition: [{
-          value: this.setting
-        }]
+        account_id: this.user.userID
       }
-      this.APIRequest('menu_settings/retrieve', parameter).then(response => {
-        let stringify = JSON.stringify(this.setting)
-        this.response = stringify
-        console.log(this.response)
+      $('#loading').css({display: 'block'})
+      this.APIRequest('bot_template/retrieve', parameter).then(response => {
+        $('#loading').css({display: 'none'})
       })
       .catch(err => console.log(err))
     },
     save(){
-      console.log(JSON.stringify(this.setting))
+      console.log(this.setting)
       if(this.setting.menus !== this.setting.menus){
-        this.APIRequest('menu_settings/save', this.setting).then(response => {
-          if (response === true){
-            console.log(JSON.stringify(this.setting))
-          }
-          this.retrieve()
+        $('#loading').css({display: 'block'})
+        this.APIRequest('bot_template/save', JSON.stringify(this.setting)).then(response => {
+          $('#loading').css({display: 'none'})
         })
       }
     },
@@ -143,13 +154,7 @@ fa {
 #btn {
   width: 105px;
 }
-@media (min-width: 1200px){
-.container-fluid{
-    padding-left: 0px;
-    padding-right: 0px;
-    }
-}
-@media (max-width: 150px) {
+@media (max-width: 992px) {
   .container-fluid{
     padding-left: 0px;
     padding-right: 0px;
