@@ -147,6 +147,16 @@ Route::post($route.'/retrieve', "BotTemplateController@retrieve");
 Route::post($route.'/update', "BotTemplateController@update");
 Route::post($route.'/delete', "BotTemplateController@delete");
 Route::post($route.'/save', "BotTemplateController@save");
+
+$route = env('PACKAGE_ROUTE', '').'/setup_page';
+Route::post($route.'/create', "SetupFacebookController@create");
+Route::post($route.'/retrieve', "SetupFacebookController@retrieve");
+Route::post($route.'/update', "SetupFacebookController@update");
+Route::post($route.'/delete', "SetupFacebookController@delete");
+
+$route = env('PACKAGE_ROUTE', '').'/facebook_page';
+Route::post($route.'/get_fb_page', "facebookController@getFacebookPage");
+
 /**
  * @Webview Routes
  */

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\BotTemplate as Template;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
