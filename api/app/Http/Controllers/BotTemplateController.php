@@ -64,4 +64,19 @@ class BotTemplateController extends APIController
           return $code;
         }
     }
+
+    public function saveSettings(Request $request){
+        $data = Template::firstOrNew(['account_id' => $request->account_id]);
+        $data->fill([
+            'account_id' => $request->account_id,
+            'code' => $data['code'],
+            'title' => $data['title'],
+            'description' => $data['description'],
+            'demo_url' => $data['demo_url'],
+            'content' => $data['content'],
+            'setting' => $request->setting
+        ])
+        ->save();
+        return $this->response();
+    }
 }
