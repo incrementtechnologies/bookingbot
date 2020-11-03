@@ -147,6 +147,8 @@ Route::post($route.'/retrieve', "BotTemplateController@retrieve");
 Route::post($route.'/update', "BotTemplateController@update");
 Route::post($route.'/delete', "BotTemplateController@delete");
 Route::post($route.'/save', "BotTemplateController@save");
+Route::post($route.'/save_settings', "BotTemplateController@saveSettings");
+
 
 $route = env('PACKAGE_ROUTE', '').'/setup_page';
 Route::post($route.'/create', "SetupFacebookController@create");

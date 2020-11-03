@@ -123,7 +123,7 @@ export default {
       console.log(this.setting)
       if(this.setting.menus !== this.setting.menus){
         $('#loading').css({display: 'block'})
-        this.APIRequest('bot_template/save', JSON.stringify(this.setting)).then(response => {
+        this.APIRequest('bot_template/save_settings', JSON.stringify(this.setting)).then(response => {
           $('#loading').css({display: 'none'})
         })
       }
