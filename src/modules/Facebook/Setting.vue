@@ -34,7 +34,7 @@
               <div class="card-title d-flex justify-content-between d-inline-flex align-items-center  ">
                 <div>{{menu.name}} 
                   <a
-                    data-toggle="collapse"
+                    data-to ggle="collapse"
                     :href="'#'+ i"
                     role="button"
                     aria-expanded="false"
@@ -109,7 +109,6 @@ export default {
   },
   methods: {
     retrieve(){
-      console.log(JSON.stringify(this.setting))
       let parameter = {
         account_id: this.user.userID
       }
@@ -120,10 +119,13 @@ export default {
       .catch(err => console.log(err))
     },
     save(){
-      console.log(this.setting)
+      let parameter = {
+        account_id: this.user.userID,
+        'setting': this.setting
+      }
       if(this.setting.menus !== this.setting.menus){
         $('#loading').css({display: 'block'})
-        this.APIRequest('bot_template/save', JSON.stringify(this.setting)).then(response => {
+        this.APIRequest('bot_template/save_settings', JSON.stringify(parameter)).then(response => {
           $('#loading').css({display: 'none'})
         })
       }
