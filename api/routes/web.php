@@ -157,6 +157,13 @@ Route::post($route.'/delete', "SetupFacebookController@delete");
 $route = env('PACKAGE_ROUTE', '').'/facebook_page';
 Route::post($route.'/get_fb_page', "facebookController@getFacebookPage");
 
+$route = env('PACKAGE_ROUTE', '').'/google_sheet';
+Route::post($route.'/create', "GoogleSheetController@create");
+Route::post($route.'/retrieve', "GoogleSheetController@retrieve");
+Route::post($route.'/update', "GoogleSheetController@update");
+Route::post($route.'/delete', "GoogleSheetController@delete");
+Route::post($route.'/googleTest', "SheetController@fetch");
+
 /**
  * @Webview Routes
  */
