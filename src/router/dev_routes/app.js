@@ -114,6 +114,14 @@ export default{
     meta: {
       tokenRequired: true
     }
+  },
+  {
+    path: '/google_sheet',
+    name: 'botEditor',
+    component: resolve => require(['modules/GoogleSheet/googleSheet.vue'], resolve),
+    meta: {
+      tokenRequired: true
+    }
   }
   ]
 }
