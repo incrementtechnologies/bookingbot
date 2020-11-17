@@ -9,5 +9,5 @@ class BotTemplate extends APIModel
 {
     use SoftDeletes;
     protected $table = "bot_templates";
-    protected $fillable = ['account_id', 'code', 'title', 'description', 'demo_url', 'content'];
+    protected $fillable = ['account_id', 'code', 'title', 'settings', 'description', 'demo_url', 'content'];
 }

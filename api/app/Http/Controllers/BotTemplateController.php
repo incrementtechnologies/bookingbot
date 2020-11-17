@@ -74,7 +74,7 @@ class BotTemplateController extends APIController
             'description' => $data['description'],
             'demo_url' => $data['demo_url'],
             'content' => $data['content'],
-            'setting' => $request->setting
+            'settings' => $request->setting
         ])
         ->save();
         return $this->response();

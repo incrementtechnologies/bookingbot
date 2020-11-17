@@ -35,7 +35,7 @@
         <div class="col-md-6">
             <div style="width: 100%; height: 90%; margin-top: 5%;">
                 <center>
-                    <h1>Jeanita's Task</h1>
+                    <Analytics></Analytics>
                 </center>
             </div>
         </div>
@@ -119,6 +119,7 @@ import CONFIG from 'src/config.js'
 import COMMON from 'src/common.js'
 import empty from 'src/components/increment/generic/empty/Empty.vue'
 import facebookLogin from 'facebook-login-vuejs'
+import Analytics from 'src/modules/dashboard/Analytics.vue'
 export default {
   data(){
     return {
@@ -145,6 +146,7 @@ export default {
   },
   components: {
     facebookLogin,
+    Analytics,
     empty
   },
   methods: {
