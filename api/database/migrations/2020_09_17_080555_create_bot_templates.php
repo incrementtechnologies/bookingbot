@@ -20,6 +20,7 @@ class CreateBotTemplates extends Migration
             $table->string('title');
             $table->longText('description');
             $table->longText('demo_url');
+            $table->longText('settings')->nullable();
             $table->longText('content');
             $table->timestamps();
             $table->softDeletes();

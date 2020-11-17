@@ -4,8 +4,8 @@
       <div class="container-fluid d-flex justify-content-between">
         Facebook Page: Increment Technologies
         <div>
-          <button type="button" id="btn" class="btn btn-info"  @click="save()" >Save</button>
-          <b-button id="btn" variant="outline-info"  @click="setting.configure = !setting.configure ">Configure</b-button>
+          <button type="button" id="btn" class="btn btn-info" @click="save()" >Save</button>
+          <b-button id="btn" variant="outline-info"  @click="configure(); enable = false ">Configure</b-button>
         </div>
       </div>
       <div class="container-fluid mt-3">
@@ -13,7 +13,10 @@
         <div class="d-flex justify-content-between">
           Enable to allow user click the get started button and reply
           the welcome message
-          <b-button id="btn" variant="outline-info"  @click="setting.enable = !setting.enable ">Enable</b-button>
+          <b-button id="btn" variant="outline-info" @click="configure(); enable = true">Enable</b-button>
+        </div>
+        <div v-if ="successMessage!== null" >
+          <label class = 'text-success'>{{successMessage}} </label>
         </div>
       </div>
     </div>
@@ -33,18 +36,9 @@
             <div class="card border-0 px-3 py-1">
               <div class="card-title d-flex justify-content-between d-inline-flex align-items-center  ">
                 <div>{{menu.name}} 
-                  <a
-                    data-to ggle="collapse"
-                    :href="'#'+ i"
-                    role="button"
-                    aria-expanded="false"
-                    :aria-controls="i"
-                  >
-                    <!-- <i class="fa fa-chevron-up mr-3"></i> -->
-                  </a>
                 </div> 
-                <!-- <span class="d-inline-flex align-items-center "> -->
-                  <!-- <a
+                  <div class="d-flex justify-content-between d-inline-flex align-items-center ">
+                    <a
                     data-toggle="collapse"
                     :href="'#'+ i"
                     role="button"
@@ -52,14 +46,11 @@
                     :aria-controls="i"
                   >
                     <i class="fa fa-chevron-up mr-3"></i>
-                  </a> -->
-                  <div class="d-flex justify-content-between d-inline-flex align-items-center ">
-                    <i class="fa fa-chevron-up mr-3"></i>
+                    </a>
                     <div class="border border-primary rounded-circle py-2 px-3 mt-2">
                      {{i+1}}
                     </div>
                   </div>
-                <!-- </span> -->
               </div>
             </div>
             <div class="collapse show" :id="i">
@@ -69,7 +60,7 @@
                 <b-card-text>
                   <br>Payload
                   <br>
-                  <b-form-input list="my-list-id" placeholder="Payload"></b-form-input>
+                  <b-form-input list="my-list-id" placeholder="Payload" v-model="menu.payload"></b-form-input>
                 </b-card-text>
               </b-card>
             </div>
@@ -77,20 +68,27 @@
         </div>
       </div>
     </div>
+    <confirmation  ref="confirmed" 
+      title='Confirmation Message' :message="enable ? 'Are you sure you want to enable the settings?': 'Are you sure you want to configured the setting?'"   @onConfirm="enable ? getStarted() : persistentMenu()"
+    ></confirmation>
   </div>
 </template>
 <script>
 import ROUTER from 'src/router'
+import axios from 'axios'
 import Vue from 'vue'
+import CONFIG from 'config'
 import AUTH from 'src/services/auth'
 import COMMON from 'src/common.js'
+import confirmation from 'components/increment/generic/modal/Confirmation.vue'
 export default {
   data: () => {
     return {
       user: AUTH.user,
+      successMessage: null,
+      enable: false,
       setting: {
-        configure: false,
-        enable: false,
+        // configure: false,
         menus: [
           { id: 1, name: 'Menu 1', payload: null },
           { id: 2, name: 'Menu 2', payload: null },
@@ -98,6 +96,9 @@ export default {
         ]
       }
     }
+  },
+  components: {
+    'confirmation': require('components/increment/generic/modal/Confirmation.vue')
   },
   mounted() {
     this.retrieve()
@@ -108,6 +109,43 @@ export default {
     }
   },
   methods: {
+    configure(){
+      this.$refs['confirmed'].show()
+    },
+    enableSettings(){
+      let parameter = {
+        account_id: this.user.userID
+      }
+      $('#loading').css({display: 'block'})
+      this.APIRequest('bot/get_started', parameter).then(response => {
+        $('#loading').css({display: 'none'})
+      })
+      .catch(err => console.log(err))
+    },
+    getStarted(){
+      let parameter = {
+        account_id: this.user.userID
+      }
+      $('#loading').css({display: 'block'})
+      this.APIRequest('bot/get_started', parameter).then(response => {
+        $('#loading').css({display: 'none'})
+        this.successMessage = 'Enabled Successfully!'
+        // console.log('You have successfully enabled the settings!')
+      })
+      .catch(err => console.log(err))
+    },
+    persistentMenu(){
+      this.enableSettings()
+      let parameter = {
+        account_id: this.user.userID
+      }
+      this.APIRequest('bot/persistent', parameter).then(response => {
+        $('#loading').css({display: 'none'})
+        // console.log('You have successfully configured the settings! ')
+        this.successMessage = 'Configured Successfully!'
+      })
+      .catch(err => console.log(err))
+    },
     retrieve(){
       let parameter = {
         account_id: this.user.userID
@@ -121,14 +159,12 @@ export default {
     save(){
       let parameter = {
         account_id: this.user.userID,
-        'setting': this.setting
+        setting: JSON.stringify(this.setting)
       }
-      if(this.setting.menus !== this.setting.menus){
-        $('#loading').css({display: 'block'})
-        this.APIRequest('bot_template/save_settings', JSON.stringify(parameter)).then(response => {
-          $('#loading').css({display: 'none'})
-        })
-      }
+      $('#loading').css({display: 'block'})
+      this.APIRequest('bot_template/save_settings', parameter).then(response => {
+        $('#loading').css({display: 'none'})
+      })
     },
     startDrag: (event, index) => {
       event.dataTransfer.dropEffect = 'move'
