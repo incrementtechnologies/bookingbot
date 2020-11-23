@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\GoogleSheetController;
+use App\GoogleSheet;
 
 class SheetController extends APIController
 {
-    //
+    
+    function __construct(){
+        $this->model = new Template();
+    }
+
     public function save(Request $request){
         $googleSheet = new GoogleSheetController('1mQHZ_HFCEhHeRCcbOIaTYr-_8dE6ViqpOnY4MBUWM00', 'A:E');
         $values = [
