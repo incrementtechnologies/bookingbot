@@ -47,4 +47,16 @@ class GoogleSheetController
         $result = $this->service->spreadsheets_values->get($this->spreadSheetID, $this->range);
         return $result;
     }
+
+    public function update($values){
+        $val = [$values];
+        $body = new \Google_Service_Sheets_ValueRange([
+            'values'=>$val
+        ]);
+        $params = [
+            'valueInputOption' => 'USER_ENTERED'
+        ];
+        $result = $this->service->spreadsheets_values->update($this->spreadSheetID, $this->range, $body, $params);
+        return $result->getUpdatedCells();
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\BotTemplate as Template;
+use App\Http\Controllers\GoogleSheetController;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -31,14 +32,25 @@ class BotTemplateController extends APIController
                     $req->data[$i]->data->reply[$x]->image = $image;
                 }
             }
+            if($req->data[$i]->type == 'form'){
+                $sheet_id = $req->data[$i]->data->sheet_id;
+                $last_range = count($req->data[$i]->data->fields);
+                $values = [];
+                $googleSheet = new GoogleSheetController($sheet_id, 'A2:' . chr(($last_range + 1) + 96) . '2');
+                for($x = 0; $x < count($req->data[$i]->data->fields); $x++){
+                    array_push($values, $req->data[$i]->data->fields[$x]->value);
+                }
+                array_push($values, 'Date');
+                $_return = $googleSheet->update($values);
+            }
         }
         try{
             // \DB::table('bot_templates')->insert(
             //     ['account_id' => $request->accountID, 'code' => $this->generateCode(), 'title' => 'template', 'description' => 'template', 'demo_url' => 'initial', "content" => $request->content]
             // );
             // return response()->json(['test'=>$req]);
-            $test = Template::firstOrNew(['account_id' => $request->account_id]);
-            $test->fill([
+            $query = Template::firstOrNew(['account_id' => $request->account_id]);
+            $query->fill([
                 'account_id' => $request->account_id,
                 'code' => $this->generateCode(),
                 'title' => 'template',
