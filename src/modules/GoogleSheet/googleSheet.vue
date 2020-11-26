@@ -96,6 +96,10 @@ export default {
     gDrive.setAttribute('type', 'text/javascript')
     gDrive.setAttribute('src', 'https://apis.google.com/js/api.js')
     document.head.appendChild(gDrive)
+
+    this.APIRequest('google_sheet/googleTest', {}).then(response => {
+      console.log(JSON.stringify(response))
+    })
   },
   methods: {
     // function called on click of drive icon
@@ -119,7 +123,7 @@ export default {
       })
     },
     handleAuthResult(authResult) {
-      console.log('Handle Auth result')
+      console.log('Handle Auth result', authResult)
       if (authResult && !authResult.error) {
         this.oauthToken = authResult.access_token
         this.createPicker()

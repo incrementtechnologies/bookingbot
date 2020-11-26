@@ -295,10 +295,20 @@
                         <div class="hide_body pt-4">
                             <p class="mb-1"> Keyword </p>
                             <input type="text" class="form-control" placeholder="Keywords" v-model="response[index].data.keywords"/>
+                            <button type="button" class="mt-5 btn btn-info bootEditorActions type_select"  @click="driveIconClicked(index)">
+                              Connect to Drive
+                            </button>
+                            <div class="card text-left mt-3 google_sheet_tips">
+                              <div class="card-body pt-2 pb-2 pl-1 pr-1">
+                                <p class="m-0"><b> Tips: </b> Connect with google drive to auto fill some details. </p>
+                              </div>
+                            </div>
+                            <p class="mb-1 mt-2">File Name:</p>
+                            <input type="text" class="form-control" placeholder="File Name" v-model="response[index].data.file_name"/>
                             <p class="mb-1 mt-2">Google Sheet ID:</p>
                             <input type="text" class="form-control" placeholder="Sheet ID" v-model="response[index].data.sheet_id"/>
-                            <p class="mb-1 mt-2">Page Number:</p>
-                            <input type="number" class="form-control" placeholder="Page Number" v-model="response[index].data.page_number"/>
+                            <p class="mb-1 mt-2">Google Sheet Page:</p>
+                            <input type="text" class="form-control mb-5" placeholder="Page" v-model="response[index].data.page_number"/>
                             <div class="mt-4">
                             <button type="button" class="form-control btn bt-info bootEditorActions type_select" @click="addReply(item.type, index, null, $event)"> <i class="fas fa-plus-circle mr-1"></i> Question </button>
                             </div>
@@ -316,11 +326,13 @@
                               </div>
                               <b-popover ref="popover" v-for="(pops, form_popIndex) in item.data.fields" :key="form_popIndex + index" :target="'form_pop' + (String(form_popIndex) + String(index))" placement="right">
                                     <b class="popOverLabel"> Type </b>
-                                    <select class="btn_type_select form-control" v-model="formType">
+                                    <select class="btn_type_select form-control mb-2" v-model="formType">
                                       <option v-for="(btnType, type_ndx) in fieldTypes" :key="type_ndx">{{btnType}}</option>
                                     </select>
                                     <b class="popOverLabel" v-if="pops.type.toLowerCase() === 'Text' || formType.toLowerCase() === 'text'"> Length </b>
                                     <input type="number" class="form-popover mb-2" placeholder="Field Length" v-model="formLength" v-if="pops.type.toLowerCase() === 'Text' || formType.toLowerCase() === 'text'"/>
+                                    <b class="popOverLabel"> Value </b>
+                                    <input type="text" class="form-popover mb-2" placeholder="Field Value" v-model="formValue"/>
                                     <button type="button" class="btn btn-info form-control mt-2" @click="settingsSave(index, form_popIndex)"> Setup </button>
                                 </b-popover>
                             </div>
@@ -407,6 +419,7 @@ export default {
         {
           data: {
             keywords: '',
+            file_name: '',
             sheet_id: '',
             page_number: '',
             fields: [],
@@ -421,6 +434,7 @@ export default {
       buttonType: '',
       formType: '',
       formLength: '',
+      formValue: '',
       bgImage: '',
       alertMessage: '',
       BACKEND_URL: CONFIG.BACKEND_URL,
@@ -434,10 +448,22 @@ export default {
       fieldTypes: [
         'Text',
         'Email'
-      ]
+      ],
+      google_file_index: null,
+      attachments: [],
+      pickerApiLoaded: false,
+      developerKey: 'AIzaSyCfIlbignMnRJUkyEa0Q8klw2_el_Mohyo',
+      clientId: '160116820228-sfnqnvn5d1e6let49onfn396veagua30.apps.googleusercontent.com',
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      oauthToken: null
     }
   },
   mounted () {
+    let gDrive = document.createElement('script')
+    gDrive.setAttribute('type', 'text/javascript')
+    gDrive.setAttribute('src', 'https://apis.google.com/js/api.js')
+    document.head.appendChild(gDrive)
+
     this.retrieve()
   },
   components: {},
@@ -604,6 +630,7 @@ export default {
           let tempForm = {
             data: {
               keywords: '',
+              file_name: '',
               sheet_id: '',
               page_number: '',
               fields: [],
@@ -675,6 +702,7 @@ export default {
     settings(id, form){
       this.formType = form.type
       this.formLength = form.length
+      this.formValue = form.value
       if(this.popState){
         this.$root.$emit('bv::hide::popover')
         this.popState = !this.popState
@@ -688,21 +716,10 @@ export default {
       this.$root.$emit('bv::hide::popover')
       this.response[index].data.fields[Sindex].type = this.formType
       this.response[index].data.fields[Sindex].length = this.formLength
+      this.response[index].data.fields[Sindex].value = this.formValue
       this.formType = ''
       this.formLength = ''
-    },
-    apiRequest(url, data){
-      let config = {
-        header: {
-          'Content-Type': 'application/json'
-        }
-      }
-      let api = axios
-      return new Promise((resolve, reject) => {
-        api.post(CONFIG.BACKEND_URL + url, data, config).then(response => {
-          resolve(response)
-        })
-      })
+      this.formValue = ''
     },
     formRequest(url, data){
       let config = {
@@ -757,10 +774,10 @@ export default {
         account_id: this.user.userID
       }
       $('#loading').css({display: 'block'})
-      this.apiRequest('/bot_template/retrieve', parameters).then(response => {
+      this.APIRequest('bot_template/retrieve', parameters).then(response => {
         $('#loading').css({display: 'none'})
-        if(response.data.data.length > 0){
-          let parse = JSON.parse(response.data.data[0].content)
+        if(response.data.length > 0){
+          let parse = JSON.parse(response.data[0].content)
           this.response = parse.data
         }
       })
@@ -771,6 +788,7 @@ export default {
       this.Data.append('content', JSON.stringify({data: this.response}))
       $('#loading').css({display: 'block'})
       await this.formRequest('/bot_template/save', this.Data).then(response => {
+        console.log(response.data)
         $('#loading').css({display: 'none'})
       })
     },
@@ -792,12 +810,101 @@ export default {
           this.response[index].data.reply[toRemoveIndex].buttons.splice(optionalIndex, 1)
           break
       }
+    },
+    async driveIconClicked(index) {
+      this.google_file_index = index
+      await gapi.load('auth2', () => {
+        gapi.auth2.authorize(
+          {
+            client_id: this.clientId,
+            scope: this.scope,
+            immediate: false
+          },
+          this.handleAuthResult
+        )
+      })
+      gapi.load('picker', () => {
+        this.pickerApiLoaded = true
+        this.createPicker()
+      })
+    },
+    handleAuthResult(authResult) {
+      if (authResult && !authResult.error) {
+        this.oauthToken = authResult.access_token
+        this.createPicker()
+      }
+    },
+    // Create and render a Picker object for picking user Photos.
+    createPicker() {
+      if (this.pickerApiLoaded && this.oauthToken) {
+        const googleViewId = google.picker.ViewId.FOLDERS
+        const shared = new google.picker.DocsView(googleViewId)
+          .setIncludeFolders(true)
+          .setMimeTypes('application/vnd.google-apps.folder')
+          .setSelectFolderEnabled(true)
+          .setEnableDrives(true)
+        var picker = new google.picker.PickerBuilder()
+          .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+          .addView(google.picker.ViewId.SPREADSHEETS)
+          .addView(shared)
+          .setOAuthToken(this.oauthToken)
+          .setDeveloperKey('AIzaSyCfIlbignMnRJUkyEa0Q8klw2_el_Mohyo')
+          .setCallback(this.pickerCallback)
+          .build()
+        picker.setVisible(true)
+      }
+    },
+    async pickerCallback(data) {
+      var url = 'nothing'
+      var name = 'nothing'
+      if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+        var doc = data[google.picker.Response.DOCUMENTS][0]
+        url = doc[google.picker.Document.URL]
+        name = doc.name
+        let docs = data.docs
+        var param = { fileId: doc.id, oAuthToken: this.oauthToken, name: name }
+        let attachments = []
+        for (let i = 0; i < docs.length; i++) {
+          let attachment = {}
+          attachment._id = docs[i].id
+          attachment.title = docs[i].name
+          attachment.name = docs[i].name + '.' + docs[i].mimeType.split('/')[1]
+          attachment.type = 'gDrive'
+          attachment.description = 'Shared with GDrive'
+          attachment.extension =
+            '.' +
+            docs[i].mimeType.substring(docs[i].mimeType.lastIndexOf('.') + 1)
+          attachment.iconURL = docs[i].iconUrl
+          attachment.size = docs[i].sizeBytes
+          attachment.user = JSON.parse(localStorage.getItem('user'))
+          attachment.thumb = null
+          attachment.thumb_list = null
+          attachments.push(attachment)
+        }
+        this.response[this.google_file_index].data.file_name = attachments[0].title
+        this.response[this.google_file_index].data.sheet_id = attachments[0]._id
+        this.attachments = attachments
+      }
+      this.oauthToken = null
+      this.pickerApiLoaded = false
     }
   }
 }
 </script>
 
 <style scoped>
+.google_sheet_tips{
+  font-size: 14px;
+  border: 1px dashed; 
+}
+.sheet_connect_button{
+  background: #00C2E0;
+  border: 1px solid #00C2E0;
+}
+.sheet_connect_button:hover{
+  background: rgb(2, 184, 212);
+  border: 1px solid rgb(2, 184, 212);
+}
 .form-control{
   font-size: 14px;
 }

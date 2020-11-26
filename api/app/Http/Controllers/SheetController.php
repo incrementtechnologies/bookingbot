@@ -10,7 +10,7 @@ class SheetController extends APIController
 {
     
     function __construct(){
-        $this->model = new Template();
+        $this->model = new GoogleSheet();
     }
 
     public function save(Request $request){
